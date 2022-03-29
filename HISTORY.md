@@ -1,5 +1,22 @@
 # History
 
+# 2022-03-29, version 10.4.2
+
+- Fix #2499: different behavior for unit conversion "degC" and "K" (#2501).
+  Also disables getting the sign for units with an offset, which is ambiguous. 
+  Thanks @gwhitney.
+- Fix #2503: fix an issue in `log()` for complex numbers in which the imaginary
+  part is much larger in absolute value than the real part, fixed in 
+  `complex.js@2.1.0` (#2505), thanks @gwhitney, @infusion.
+- Fix #2493: unclear error message when an entity that is not a function
+  is being called as a function (#2494). Thanks @gwhitney.
+- Some fixes in the docs on units (#2498). Thanks @dvd101x.
+- Add `forEach` example in embedded docs (#2507). Thanks @dvd101x.
+- Correct approx.deepEqual() to accept an epsilon argument giving the
+  comparison tolerance. It was already being called this way, but was
+  silently ignoring the tolerance. Thanks @yifanwww.
+
+
 # 2022-03-23, version 10.4.1
 
 - Improve TypeScript definitions for function `unit` (#2479). 
