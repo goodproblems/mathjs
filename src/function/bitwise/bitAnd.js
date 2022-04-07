@@ -1,9 +1,10 @@
 import { bitAndBigNumber } from '../../utils/bignumber/bitwise.js'
-import { createAlgorithm02 } from '../../type/matrix/utils/algorithm02.js'
-import { createAlgorithm11 } from '../../type/matrix/utils/algorithm11.js'
-import { createAlgorithm13 } from '../../type/matrix/utils/algorithm13.js'
-import { createAlgorithm14 } from '../../type/matrix/utils/algorithm14.js'
-import { createAlgorithm06 } from '../../type/matrix/utils/algorithm06.js'
+import { createAlgorithmDS0 } from '../../type/matrix/utils/algorithmDS0.js'
+import { createAlgorithmSs0 } from '../../type/matrix/utils/algorithmSs0.js'
+import { createAlgorithmSS00 } from '../../type/matrix/utils/algorithmSS00.js'
+import {
+  createMatrixAlgorithmSuite
+} from '../../type/matrix/utils/matrixAlgorithmSuite.js'
 import { factory } from '../../utils/factory.js'
 import { bitAndNumber } from '../../plain/number/index.js'
 
@@ -15,12 +16,16 @@ const dependencies = [
 ]
 
 export const createBitAnd = /* #__PURE__ */ factory(name, dependencies, ({ typed, matrix, equalScalar }) => {
-  const algorithm02 = createAlgorithm02({ typed, equalScalar })
-  const algorithm06 = createAlgorithm06({ typed, equalScalar })
-  const algorithm11 = createAlgorithm11({ typed, equalScalar })
-  const algorithm13 = createAlgorithm13({ typed })
-  const algorithm14 = createAlgorithm14({ typed })
+  const algorithmDS0 = createAlgorithmDS0({ typed, equalScalar })
+  const algorithmSS00 = createAlgorithmSS00({ typed, equalScalar })
+  const algorithmSs0 = createAlgorithmSs0({ typed, equalScalar })
+  const matrixAlgorithmSuite = createMatrixAlgorithmSuite({ typed, matrix })
 
+  const bitAndScalar = typed({
+    'number, number': bitAndNumber,
+    'BigNumber, BigNumber': bitAndBigNumber,
+  })
+  
   /**
    * Bitwise AND two values, `x & y`.
    * For matrices, the function is evaluated element wise.
@@ -43,67 +48,10 @@ export const createBitAnd = /* #__PURE__ */ factory(name, dependencies, ({ typed
    * @param  {number | BigNumber | Array | Matrix} y Second value to and
    * @return {number | BigNumber | Array | Matrix} AND of `x` and `y`
    */
-  return typed(name, {
-
-    'number, number': bitAndNumber,
-
-    'BigNumber, BigNumber': bitAndBigNumber,
-
-    'SparseMatrix, SparseMatrix': function (x, y) {
-      return algorithm06(x, y, this, false)
-    },
-
-    'SparseMatrix, DenseMatrix': function (x, y) {
-      return algorithm02(y, x, this, true)
-    },
-
-    'DenseMatrix, SparseMatrix': function (x, y) {
-      return algorithm02(x, y, this, false)
-    },
-
-    'DenseMatrix, DenseMatrix': function (x, y) {
-      return algorithm13(x, y, this)
-    },
-
-    'Array, Array': function (x, y) {
-      // use matrix implementation
-      return this(matrix(x), matrix(y)).valueOf()
-    },
-
-    'Array, Matrix': function (x, y) {
-      // use matrix implementation
-      return this(matrix(x), y)
-    },
-
-    'Matrix, Array': function (x, y) {
-      // use matrix implementation
-      return this(x, matrix(y))
-    },
-
-    'SparseMatrix, any': function (x, y) {
-      return algorithm11(x, y, this, false)
-    },
-
-    'DenseMatrix, any': function (x, y) {
-      return algorithm14(x, y, this, false)
-    },
-
-    'any, SparseMatrix': function (x, y) {
-      return algorithm11(y, x, this, true)
-    },
-
-    'any, DenseMatrix': function (x, y) {
-      return algorithm14(y, x, this, true)
-    },
-
-    'Array, any': function (x, y) {
-      // use matrix implementation
-      return algorithm14(matrix(x), y, this, false).valueOf()
-    },
-
-    'any, Array': function (x, y) {
-      // use matrix implementation
-      return algorithm14(matrix(y), x, this, true).valueOf()
-    }
-  })
+  return typed(name, matrixAlgorithmSuite({
+    elop: bitAndScalar,
+    SS: algorithmSS00,
+    DS: algorithmDS0,
+    Ss: algorithmSs0
+  }))
 })

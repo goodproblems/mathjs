@@ -2,8 +2,8 @@ import { factory } from '../../utils/factory.js'
 import { isMatrix } from '../../utils/is.js'
 import { extend } from '../../utils/object.js'
 import { arraySize } from '../../utils/array.js'
-import { createAlgorithm11 } from '../../type/matrix/utils/algorithm11.js'
-import { createAlgorithm14 } from '../../type/matrix/utils/algorithm14.js'
+import { createAlgorithmSs0 } from '../../type/matrix/utils/algorithmSs0.js'
+import { createAlgorithmDs } from '../../type/matrix/utils/algorithmDs.js'
 
 const name = 'multiply'
 const dependencies = [
@@ -16,8 +16,8 @@ const dependencies = [
 ]
 
 export const createMultiply = /* #__PURE__ */ factory(name, dependencies, ({ typed, matrix, addScalar, multiplyScalar, equalScalar, dot }) => {
-  const algorithm11 = createAlgorithm11({ typed, equalScalar })
-  const algorithm14 = createAlgorithm14({ typed })
+  const algorithmSs0 = createAlgorithmSs0({ typed, equalScalar })
+  const algorithmDs = createAlgorithmDs({ typed })
 
   function _validateMatrixDimensions (size1, size2) {
     // check left operand dimensions
@@ -797,15 +797,15 @@ export const createMultiply = /* #__PURE__ */ factory(name, dependencies, ({ typ
   return typed(name, extend({
     // we extend the signatures of multiplyScalar with signatures dealing with matrices
 
-    'Array, Array': function (x, y) {
+    'Array, Array': typed.referTo('Matrix, Matrix', multMM => (x, y) => {
       // check dimensions
       _validateMatrixDimensions(arraySize(x), arraySize(y))
 
       // use dense matrix implementation
-      const m = this(matrix(x), matrix(y))
+      const m = multMM(matrix(x), matrix(y))
       // return array or scalar
       return isMatrix(m) ? m.valueOf() : m
-    },
+    }),
 
     'Matrix, Matrix': function (x, y) {
       // dimensions
@@ -834,49 +834,49 @@ export const createMultiply = /* #__PURE__ */ factory(name, dependencies, ({ typ
       return _multiplyMatrixMatrix(x, y)
     },
 
-    'Matrix, Array': function (x, y) {
+    'Matrix, Array': typed.referTo('Matrix, Matrix', multMM => (x, y) => {
       // use Matrix * Matrix implementation
-      return this(x, matrix(y))
-    },
-
-    'Array, Matrix': function (x, y) {
+      return multMM(x, matrix(y))
+    }),
+    
+    'Array, Matrix': typed.referTo('Matrix, Matrix', multMM => (x, y) {
       // use Matrix * Matrix implementation
-      return this(matrix(x, y.storage()), y)
-    },
+      return multMM(matrix(x, y.storage()), y)
+    }),
 
     'SparseMatrix, any': function (x, y) {
-      return algorithm11(x, y, multiplyScalar, false)
+      return algorithmSs0(x, y, multiplyScalar, false)
     },
 
     'DenseMatrix, any': function (x, y) {
-      return algorithm14(x, y, multiplyScalar, false)
+      return algorithmDs(x, y, multiplyScalar, false)
     },
 
     'any, SparseMatrix': function (x, y) {
-      return algorithm11(y, x, multiplyScalar, true)
+      return algorithmSs0(y, x, multiplyScalar, true)
     },
 
     'any, DenseMatrix': function (x, y) {
-      return algorithm14(y, x, multiplyScalar, true)
+      return algorithmDs(y, x, multiplyScalar, true)
     },
 
     'Array, any': function (x, y) {
       // use matrix implementation
-      return algorithm14(matrix(x), y, multiplyScalar, false).valueOf()
+      return algorithmDs(matrix(x), y, multiplyScalar, false).valueOf()
     },
 
     'any, Array': function (x, y) {
       // use matrix implementation
-      return algorithm14(matrix(y), x, multiplyScalar, true).valueOf()
+      return algorithmDs(matrix(y), x, multiplyScalar, true).valueOf()
     },
 
     'any, any': multiplyScalar,
 
-    'any, any, ...any': function (x, y, rest) {
-      let result = this(x, y)
+    'any, any, ...any': typed.referToSelf(self => (x, y, rest) => {
+      let result = self(x, y)
 
       for (let i = 0; i < rest.length; i++) {
-        result = this(result, rest[i])
+        result = self(result, rest[i])
       }
 
       return result

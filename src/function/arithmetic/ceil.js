@@ -4,54 +4,17 @@ import { deepMap } from '../../utils/collection.js'
 import { nearlyEqual } from '../../utils/number.js'
 import { nearlyEqual as bigNearlyEqual } from '../../utils/bignumber/nearlyEqual.js'
 import { ceilNumber } from '../../plain/number/index.js'
-import { createAlgorithm11 } from '../../type/matrix/utils/algorithm11.js'
-import { createAlgorithm14 } from '../../type/matrix/utils/algorithm14.js'
+import { createAlgorithmSs0 } from '../../type/matrix/utils/algorithmSs0.js'
+import { createAlgorithmDs } from '../../type/matrix/utils/algorithmDs.js'
 
 const name = 'ceil'
 const dependencies = ['typed', 'config', 'round', 'matrix', 'equalScalar']
 
 export const createCeil = /* #__PURE__ */ factory(name, dependencies, ({ typed, config, round, matrix, equalScalar }) => {
-  const algorithm11 = createAlgorithm11({ typed, equalScalar })
-  const algorithm14 = createAlgorithm14({ typed })
+  const algorithmSs0 = createAlgorithmSs0({ typed, equalScalar })
+  const algorithmDs = createAlgorithmDs({ typed })
 
-  /**
-   * Round a value towards plus infinity
-   * If `x` is complex, both real and imaginary part are rounded towards plus infinity.
-   * For matrices, the function is evaluated element wise.
-   *
-   * Syntax:
-   *
-   *    math.ceil(x)
-   *    math.ceil(x, n)
-   *
-   * Examples:
-   *
-   *    math.ceil(3.2)               // returns number 4
-   *    math.ceil(3.8)               // returns number 4
-   *    math.ceil(-4.2)              // returns number -4
-   *    math.ceil(-4.7)              // returns number -4
-   *
-   *    math.ceil(3.212, 2)          // returns number 3.22
-   *    math.ceil(3.288, 2)          // returns number 3.29
-   *    math.ceil(-4.212, 2)         // returns number -4.21
-   *    math.ceil(-4.782, 2)         // returns number -4.78
-   *
-   *    const c = math.complex(3.24, -2.71)
-   *    math.ceil(c)                 // returns Complex 4 - 2i
-   *    math.ceil(c, 1)              // returns Complex 3.3 - 2.7i
-   *
-   *    math.ceil([3.2, 3.8, -4.7])  // returns Array [4, 4, -4]
-   *    math.ceil([3.21, 3.82, -4.71], 1)  // returns Array [3.3, 3.9, -4.7]
-   *
-   * See also:
-   *
-   *    floor, fix, round
-   *
-   * @param  {number | BigNumber | Fraction | Complex | Array | Matrix} x  Number to be rounded
-   * @param  {number | BigNumber | Array} [n=0]                            Number of decimals
-   * @return {number | BigNumber | Fraction | Complex | Array | Matrix} Rounded value
-   */
-  return typed('ceil', {
+  const ceilScalar = typed({
     number: function (x) {
       if (nearlyEqual(x, round(x), config.epsilon)) {
         return round(x)
@@ -101,29 +64,68 @@ export const createCeil = /* #__PURE__ */ factory(name, dependencies, ({ typed, 
 
     'Fraction, number': function (x, n) {
       return x.ceil(n)
-    },
+    }
+  })
 
+  /**
+   * Round a value towards plus infinity
+   * If `x` is complex, both real and imaginary part are rounded towards plus infinity.
+   * For matrices, the function is evaluated element wise.
+   *
+   * Syntax:
+   *
+   *    math.ceil(x)
+   *    math.ceil(x, n)
+   *
+   * Examples:
+   *
+   *    math.ceil(3.2)               // returns number 4
+   *    math.ceil(3.8)               // returns number 4
+   *    math.ceil(-4.2)              // returns number -4
+   *    math.ceil(-4.7)              // returns number -4
+   *
+   *    math.ceil(3.212, 2)          // returns number 3.22
+   *    math.ceil(3.288, 2)          // returns number 3.29
+   *    math.ceil(-4.212, 2)         // returns number -4.21
+   *    math.ceil(-4.782, 2)         // returns number -4.78
+   *
+   *    const c = math.complex(3.24, -2.71)
+   *    math.ceil(c)                 // returns Complex 4 - 2i
+   *    math.ceil(c, 1)              // returns Complex 3.3 - 2.7i
+   *
+   *    math.ceil([3.2, 3.8, -4.7])  // returns Array [4, 4, -4]
+   *    math.ceil([3.21, 3.82, -4.71], 1)  // returns Array [3.3, 3.9, -4.7]
+   *
+   * See also:
+   *
+   *    floor, fix, round
+   *
+   * @param  {number | BigNumber | Fraction | Complex | Array | Matrix} x  Number to be rounded
+   * @param  {number | BigNumber | Array} [n=0]                            Number of decimals
+   * @return {number | BigNumber | Fraction | Complex | Array | Matrix} Rounded value
+   */
+  return typed('ceil', extend({
     'Array | Matrix': function (x) {
       // deep map collection, skip zeros since ceil(0) = 0
-      return deepMap(x, this, true)
+      return deepMap(x, ceilScalar, true)
     },
 
     'Array | Matrix, number': function (x, n) {
       // deep map collection, skip zeros since ceil(0) = 0
-      return deepMap(x, i => this(i, n), true)
+      return deepMap(x, i => ceilScalar(i, n), true)
     },
 
     'SparseMatrix, number | BigNumber': function (x, y) {
-      return algorithm11(x, y, this, false)
+      return algorithmSs0(x, y, ceilScalar, false)
     },
 
     'DenseMatrix, number | BigNumber': function (x, y) {
-      return algorithm14(x, y, this, false)
+      return algorithmDs(x, y, ceilScalar, false)
     },
 
-    'number | Complex | BigNumber, Array': function (x, y) {
+    'any, Array': function (x, y) {
       // use matrix implementation
-      return algorithm14(matrix(y), x, this, true).valueOf()
+      return algorithmDs(matrix(y), x, ceilScalar, true).valueOf()
     }
-  })
+  }, ceilScalar.signatures))
 })

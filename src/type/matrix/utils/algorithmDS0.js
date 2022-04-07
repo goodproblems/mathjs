@@ -1,10 +1,10 @@
 import { factory } from '../../../utils/factory.js'
 import { DimensionError } from '../../../error/DimensionError.js'
 
-const name = 'algorithm01'
-const dependencies = ['typed']
+const name = 'algorithmDS0'
+const dependencies = ['typed', 'equalScalar']
 
-export const createAlgorithm01 = /* #__PURE__ */ factory(name, dependencies, ({ typed }) => {
+export const createAlgorithmDS0 = /* #__PURE__ */ factory(name, dependencies, ({ typed, equalScalar }) => {
   /**
    * Iterates over SparseMatrix nonzero items and invokes the callback function f(Dij, Sij).
    * Callback function invoked NNZ times (number of nonzero items in SparseMatrix).
@@ -12,7 +12,7 @@ export const createAlgorithm01 = /* #__PURE__ */ factory(name, dependencies, ({ 
    *
    *          ┌  f(Dij, Sij)  ; S(i,j) !== 0
    * C(i,j) = ┤
-   *          └  Dij          ; otherwise
+   *          └  0            ; otherwise
    *
    *
    * @param {Matrix}   denseMatrix       The DenseMatrix instance (D)
@@ -20,11 +20,11 @@ export const createAlgorithm01 = /* #__PURE__ */ factory(name, dependencies, ({ 
    * @param {Function} callback          The f(Dij,Sij) operation to invoke, where Dij = DenseMatrix(i,j) and Sij = SparseMatrix(i,j)
    * @param {boolean}  inverse           A true value indicates callback should be invoked f(Sij,Dij)
    *
-   * @return {Matrix}                    DenseMatrix (C)
+   * @return {Matrix}                    SparseMatrix (C)
    *
    * see https://github.com/josdejong/mathjs/pull/346#issuecomment-97477571
    */
-  return function algorithm1 (denseMatrix, sparseMatrix, callback, inverse) {
+  return function algorithmDS0 (denseMatrix, sparseMatrix, callback, inverse) {
     // dense matrix arrays
     const adata = denseMatrix._data
     const asize = denseMatrix._size
@@ -49,53 +49,58 @@ export const createAlgorithm01 = /* #__PURE__ */ factory(name, dependencies, ({ 
     const rows = asize[0]
     const columns = asize[1]
 
+    // datatype
+    let dt
+    // equal signature to use
+    let eq = equalScalar
+    // zero value
+    let zero = 0
+    // callback signature to use
+    let cf = callback
+
     // process data types
-    const dt = typeof adt === 'string' && adt === bdt ? adt : undefined
-    // callback function
-    const cf = dt ? typed.find(callback, [dt, dt]) : callback
+    if (typeof adt === 'string' && adt === bdt) {
+      // datatype
+      dt = adt
+      // find signature that matches (dt, dt)
+      eq = typed.find(equalScalar, [dt, dt])
+      // convert 0 to the same datatype
+      zero = typed.convert(0, dt)
+      // callback
+      cf = typed.find(callback, [dt, dt])
+    }
 
-    // vars
-    let i, j
-
-    // result (DenseMatrix)
-    const cdata = []
-    // initialize c
-    for (i = 0; i < rows; i++) { cdata[i] = [] }
-
-    // workspace
-    const x = []
-    // marks indicating we have a value in x for a given column
-    const w = []
+    // result (SparseMatrix)
+    const cvalues = []
+    const cindex = []
+    const cptr = []
 
     // loop columns in b
-    for (j = 0; j < columns; j++) {
-      // column mark
-      const mark = j + 1
+    for (let j = 0; j < columns; j++) {
+      // update cptr
+      cptr[j] = cindex.length
       // values in column j
       for (let k0 = bptr[j], k1 = bptr[j + 1], k = k0; k < k1; k++) {
         // row
-        i = bindex[k]
-        // update workspace
-        x[i] = inverse ? cf(bvalues[k], adata[i][j]) : cf(adata[i][j], bvalues[k])
-        // mark i as updated
-        w[i] = mark
-      }
-      // loop rows
-      for (i = 0; i < rows; i++) {
-        // check row is in workspace
-        if (w[i] === mark) {
-          // c[i][j] was already calculated
-          cdata[i][j] = x[i]
-        } else {
-          // item does not exist in S
-          cdata[i][j] = adata[i][j]
+        const i = bindex[k]
+        // update C(i,j)
+        const cij = inverse ? cf(bvalues[k], adata[i][j]) : cf(adata[i][j], bvalues[k])
+        // check for nonzero
+        if (!eq(cij, zero)) {
+          // push i & v
+          cindex.push(i)
+          cvalues.push(cij)
         }
       }
     }
+    // update cptr
+    cptr[columns] = cindex.length
 
-    // return dense matrix
-    return denseMatrix.createDenseMatrix({
-      data: cdata,
+    // return sparse matrix
+    return sparseMatrix.createSparseMatrix({
+      values: cvalues,
+      index: cindex,
+      ptr: cptr,
       size: [rows, columns],
       datatype: dt
     })

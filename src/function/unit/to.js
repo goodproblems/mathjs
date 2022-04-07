@@ -1,6 +1,6 @@
 import { factory } from '../../utils/factory.js'
-import { createAlgorithm13 } from '../../type/matrix/utils/algorithm13.js'
-import { createAlgorithm14 } from '../../type/matrix/utils/algorithm14.js'
+import { createAlgorithmDD } from '../../type/matrix/utils/algorithmDD.js'
+import { createAlgorithmDs } from '../../type/matrix/utils/algorithmDs.js'
 
 const name = 'to'
 const dependencies = [
@@ -9,8 +9,8 @@ const dependencies = [
 ]
 
 export const createTo = /* #__PURE__ */ factory(name, dependencies, ({ typed, matrix }) => {
-  const algorithm13 = createAlgorithm13({ typed })
-  const algorithm14 = createAlgorithm14({ typed })
+  const algorithmDD = createAlgorithmDD({ typed })
+  const algorithmDs = createAlgorithmDs({ typed })
 
   /**
    * Change the unit of a value.
@@ -43,7 +43,7 @@ export const createTo = /* #__PURE__ */ factory(name, dependencies, ({ typed, ma
 
     'Matrix, Matrix': function (x, y) {
       // SparseMatrix does not support Units
-      return algorithm13(x, y, this)
+      return algorithmDD(x, y, this)
     },
 
     'Array, Array': function (x, y) {
@@ -63,22 +63,22 @@ export const createTo = /* #__PURE__ */ factory(name, dependencies, ({ typed, ma
 
     'Matrix, any': function (x, y) {
       // SparseMatrix does not support Units
-      return algorithm14(x, y, this, false)
+      return algorithmDs(x, y, this, false)
     },
 
     'any, Matrix': function (x, y) {
       // SparseMatrix does not support Units
-      return algorithm14(y, x, this, true)
+      return algorithmDs(y, x, this, true)
     },
 
     'Array, any': function (x, y) {
       // use matrix implementation
-      return algorithm14(matrix(x), y, this, false).valueOf()
+      return algorithmDs(matrix(x), y, this, false).valueOf()
     },
 
     'any, Array': function (x, y) {
       // use matrix implementation
-      return algorithm14(matrix(y), x, this, true).valueOf()
+      return algorithmDs(matrix(y), x, this, true).valueOf()
     }
   })
 })

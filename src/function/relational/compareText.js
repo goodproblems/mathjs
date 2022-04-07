@@ -1,7 +1,7 @@
 import { compareText as _compareText } from '../../utils/string.js'
 import { factory } from '../../utils/factory.js'
-import { createAlgorithm14 } from '../../type/matrix/utils/algorithm14.js'
-import { createAlgorithm13 } from '../../type/matrix/utils/algorithm13.js'
+import { createAlgorithmDs } from '../../type/matrix/utils/algorithmDs.js'
+import { createAlgorithmDD } from '../../type/matrix/utils/algorithmDD.js'
 
 const name = 'compareText'
 const dependencies = [
@@ -10,8 +10,8 @@ const dependencies = [
 ]
 
 export const createCompareText = /* #__PURE__ */ factory(name, dependencies, ({ typed, matrix }) => {
-  const algorithm13 = createAlgorithm13({ typed })
-  const algorithm14 = createAlgorithm14({ typed })
+  const algorithmDD = createAlgorithmDD({ typed })
+  const algorithmDs = createAlgorithmDs({ typed })
 
   /**
    * Compare two strings lexically. Comparison is case sensitive.
@@ -46,7 +46,7 @@ export const createCompareText = /* #__PURE__ */ factory(name, dependencies, ({ 
     'any, any': _compareText,
 
     'DenseMatrix, DenseMatrix': function (x, y) {
-      return algorithm13(x, y, _compareText)
+      return algorithmDD(x, y, _compareText)
     },
 
     'Array, Array': function (x, y) {
@@ -65,21 +65,21 @@ export const createCompareText = /* #__PURE__ */ factory(name, dependencies, ({ 
     },
 
     'DenseMatrix, any': function (x, y) {
-      return algorithm14(x, y, _compareText, false)
+      return algorithmDs(x, y, _compareText, false)
     },
 
     'any, DenseMatrix': function (x, y) {
-      return algorithm14(y, x, _compareText, true)
+      return algorithmDs(y, x, _compareText, true)
     },
 
     'Array, any': function (x, y) {
       // use matrix implementation
-      return algorithm14(matrix(x), y, _compareText, false).valueOf()
+      return algorithmDs(matrix(x), y, _compareText, false).valueOf()
     },
 
     'any, Array': function (x, y) {
       // use matrix implementation
-      return algorithm14(matrix(y), x, _compareText, true).valueOf()
+      return algorithmDs(matrix(y), x, _compareText, true).valueOf()
     }
   })
 })

@@ -1,11 +1,12 @@
 import { factory } from '../../utils/factory.js'
-import { createAlgorithm02 } from '../../type/matrix/utils/algorithm02.js'
-import { createAlgorithm03 } from '../../type/matrix/utils/algorithm03.js'
-import { createAlgorithm09 } from '../../type/matrix/utils/algorithm09.js'
-import { createAlgorithm11 } from '../../type/matrix/utils/algorithm11.js'
-import { createAlgorithm12 } from '../../type/matrix/utils/algorithm12.js'
-import { createAlgorithm13 } from '../../type/matrix/utils/algorithm13.js'
-import { createAlgorithm14 } from '../../type/matrix/utils/algorithm14.js'
+import { createAlgorithmDS0 } from '../../type/matrix/utils/algorithmDS0.js'
+import { createAlgorithmDSf } from '../../type/matrix/utils/algorithmDSf.js'
+import { createAlgorithmSfS0 } from '../../type/matrix/utils/algorithmSfS0.js'
+import { createAlgorithmSs0 } from '../../type/matrix/utils/algorithmSs0.js'
+import { createAlgorithmSsf } from '../../type/matrix/utils/algorithmSsf.js'
+import {
+  createMatrixAlgorithmSuite
+} from '../../type/matrix/utils/matrixAlgorithmSuite.js'
 
 const name = 'atan2'
 const dependencies = [
@@ -17,14 +18,25 @@ const dependencies = [
 ]
 
 export const createAtan2 = /* #__PURE__ */ factory(name, dependencies, ({ typed, matrix, equalScalar, BigNumber, DenseMatrix }) => {
-  const algorithm02 = createAlgorithm02({ typed, equalScalar })
-  const algorithm03 = createAlgorithm03({ typed })
-  const algorithm09 = createAlgorithm09({ typed, equalScalar })
-  const algorithm11 = createAlgorithm11({ typed, equalScalar })
-  const algorithm12 = createAlgorithm12({ typed, DenseMatrix })
-  const algorithm13 = createAlgorithm13({ typed })
-  const algorithm14 = createAlgorithm14({ typed })
+  const algorithmDS0 = createAlgorithmDS0({ typed, equalScalar })
+  const algorithmDSf = createAlgorithmDSf({ typed })
+  const algorithmSfS0 = createAlgorithmSfS0({ typed, equalScalar })
+  const algorithmSs0 = createAlgorithmSs0({ typed, equalScalar })
+  const algorithmSsf = createAlgorithmSsf({ typed, DenseMatrix })
+  const matrixAlgorithmSuite = createMatrixAlgorithmSuite({ typed, matrix })
 
+  const atan2Scalar = typed({
+    'number, number': Math.atan2,
+
+    // Complex numbers doesn't seem to have a reasonable implementation of
+    // atan2(). Even Matlab removed the support, after they only calculated
+    // the atan only on base of the real part of the numbers and ignored the imaginary.
+
+    'BigNumber, BigNumber': function (y, x) {
+      return BigNumber.atan2(y, x)
+    }
+  })
+    
   /**
    * Calculate the inverse tangent function with two arguments, y/x.
    * By providing two arguments, the right quadrant of the computed angle can be
@@ -54,71 +66,13 @@ export const createAtan2 = /* #__PURE__ */ factory(name, dependencies, ({ typed,
    * @param {number | Array | Matrix} x  First dimension
    * @return {number | Array | Matrix} Four-quadrant inverse tangent
    */
-  return typed(name, {
-
-    'number, number': Math.atan2,
-
-    // Complex numbers doesn't seem to have a reasonable implementation of
-    // atan2(). Even Matlab removed the support, after they only calculated
-    // the atan only on base of the real part of the numbers and ignored the imaginary.
-
-    'BigNumber, BigNumber': function (y, x) {
-      return BigNumber.atan2(y, x)
-    },
-
-    'SparseMatrix, SparseMatrix': function (x, y) {
-      return algorithm09(x, y, this, false)
-    },
-
-    'SparseMatrix, DenseMatrix': function (x, y) {
-      // mind the order of y and x!
-      return algorithm02(y, x, this, true)
-    },
-
-    'DenseMatrix, SparseMatrix': function (x, y) {
-      return algorithm03(x, y, this, false)
-    },
-
-    'DenseMatrix, DenseMatrix': function (x, y) {
-      return algorithm13(x, y, this)
-    },
-
-    'Array, Array': function (x, y) {
-      return this(matrix(x), matrix(y)).valueOf()
-    },
-
-    'Array, Matrix': function (x, y) {
-      return this(matrix(x), y)
-    },
-
-    'Matrix, Array': function (x, y) {
-      return this(x, matrix(y))
-    },
-
-    'SparseMatrix, number | BigNumber': function (x, y) {
-      return algorithm11(x, y, this, false)
-    },
-
-    'DenseMatrix, number | BigNumber': function (x, y) {
-      return algorithm14(x, y, this, false)
-    },
-
-    'number | BigNumber, SparseMatrix': function (x, y) {
-      // mind the order of y and x
-      return algorithm12(y, x, this, true)
-    },
-
-    'number | BigNumber, DenseMatrix': function (x, y) {
-      // mind the order of y and x
-      return algorithm14(y, x, this, true)
-    },
-
-    'Array, number | BigNumber': function (x, y) {
-      return algorithm14(matrix(x), y, this, false).valueOf()
-    },
-
-    'number | BigNumber, Array': function (x, y) {
-      return algorithm14(matrix(y), x, this, true).valueOf()
-    }
-  })
+  return typed(name, matrixAlgorithmSuite({
+    elop: atan2Scalar,
+    scalar: 'number | BigNumber',
+    SS: algorithmSfS0,
+    DS: algorithmDSf,
+    SD: algorithmDS0,
+    Ss: algorithmSs0,
+    sS: algorithmSsf
+  }))
 })

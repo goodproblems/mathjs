@@ -2,10 +2,10 @@ import { factory } from '../../../utils/factory.js'
 import { DimensionError } from '../../../error/DimensionError.js'
 import { scatter } from '../../../utils/collection.js'
 
-const name = 'algorithm06'
+const name = 'algorithmSS00'
 const dependencies = ['typed', 'equalScalar']
 
-export const createAlgorithm06 = /* #__PURE__ */ factory(name, dependencies, ({ typed, equalScalar }) => {
+export const createAlgorithmSS00 = /* #__PURE__ */ factory(name, dependencies, ({ typed, equalScalar }) => {
   /**
    * Iterates over SparseMatrix A and SparseMatrix B nonzero items and invokes the callback function f(Aij, Bij).
    * Callback function invoked (Anz U Bnz) times, where Anz and Bnz are the nonzero elements in both matrices.
@@ -24,7 +24,7 @@ export const createAlgorithm06 = /* #__PURE__ */ factory(name, dependencies, ({ 
    *
    * see https://github.com/josdejong/mathjs/pull/346#issuecomment-97620294
    */
-  return function algorithm06 (a, b, callback) {
+  return function algorithmSS00 (a, b, callback) {
     // sparse matrix arrays
     const avalues = a._values
     const asize = a._size

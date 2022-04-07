@@ -1,9 +1,9 @@
 import { factory } from '../../../utils/factory.js'
 
-const name = 'algorithm11'
+const name = 'algorithmSs0'
 const dependencies = ['typed', 'equalScalar']
 
-export const createAlgorithm11 = /* #__PURE__ */ factory(name, dependencies, ({ typed, equalScalar }) => {
+export const createAlgorithmSs0 = /* #__PURE__ */ factory(name, dependencies, ({ typed, equalScalar }) => {
   /**
    * Iterates over SparseMatrix S nonzero items and invokes the callback function f(Sij, b).
    * Callback function invoked NZ times (number of nonzero items in S).
@@ -23,7 +23,7 @@ export const createAlgorithm11 = /* #__PURE__ */ factory(name, dependencies, ({ 
    *
    * https://github.com/josdejong/mathjs/pull/346#issuecomment-97626813
    */
-  return function algorithm11 (s, b, callback, inverse) {
+  return function algorithmSs0 (s, b, callback, inverse) {
     // sparse matrix arrays
     const avalues = s._values
     const aindex = s._index

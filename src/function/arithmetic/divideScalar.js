@@ -34,22 +34,22 @@ export const createDivideScalar = /* #__PURE__ */ factory(name, dependencies, ({
       return x.div(y)
     },
 
-    'Unit, number | Fraction | BigNumber': function (x, y) {
+    'Unit, number | Fraction | BigNumber': typed.referToSelf(self => (x, y) => {
       const res = x.clone()
       // TODO: move the divide function to Unit.js, it uses internals of Unit
       const one = numeric(1, typeOf(y))
-      res.value = this(((res.value === null) ? res._normalize(one) : res.value), y)
+      res.value = self(((res.value === null) ? res._normalize(one) : res.value), y)
       return res
-    },
+    }),
 
-    'number | Fraction | BigNumber, Unit': function (x, y) {
+    'number | Fraction | BigNumber, Unit': typed.referToSelf(self => (x, y) => {
       let res = y.clone()
       res = res.pow(-1)
       // TODO: move the divide function to Unit.js, it uses internals of Unit
       const one = numeric(1, typeOf(x))
-      res.value = this(x, ((y.value === null) ? y._normalize(one) : y.value))
+      res.value = self(x, ((y.value === null) ? y._normalize(one) : y.value))
       return res
-    },
+    }),
 
     'Unit, Unit': function (x, y) {
       return x.divide(y)
