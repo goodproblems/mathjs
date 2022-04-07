@@ -1,11 +1,12 @@
 import { factory } from '../../utils/factory.js'
-import { createAlgorithm02 } from '../../type/matrix/utils/algorithm02.js'
-import { createAlgorithm03 } from '../../type/matrix/utils/algorithm03.js'
-import { createAlgorithm05 } from '../../type/matrix/utils/algorithm05.js'
-import { createAlgorithm11 } from '../../type/matrix/utils/algorithm11.js'
-import { createAlgorithm12 } from '../../type/matrix/utils/algorithm12.js'
-import { createAlgorithm13 } from '../../type/matrix/utils/algorithm13.js'
-import { createAlgorithm14 } from '../../type/matrix/utils/algorithm14.js'
+import { createAlgorithmDS0 } from '../../type/matrix/utils/algorithmDS0.js'
+import { createAlgorithmDSf } from '../../type/matrix/utils/algorithmDSf.js'
+import { createAlgorithmSSf0 } from '../../type/matrix/utils/algorithmSSf0.js'
+import { createAlgorithmSs0 } from '../../type/matrix/utils/algorithmSs0.js'
+import { createAlgorithmSsf } from '../../type/matrix/utils/algorithmSsf.js'
+import {
+  createMatrixAlgorithmSuite
+} from '../../type/matrix/utils/matrixAlgorithmSuite.js'
 import { modNumber } from '../../plain/number/index.js'
 
 const name = 'mod'
@@ -17,14 +18,32 @@ const dependencies = [
 ]
 
 export const createMod = /* #__PURE__ */ factory(name, dependencies, ({ typed, matrix, equalScalar, DenseMatrix }) => {
-  const algorithm02 = createAlgorithm02({ typed, equalScalar })
-  const algorithm03 = createAlgorithm03({ typed })
-  const algorithm05 = createAlgorithm05({ typed, equalScalar })
-  const algorithm11 = createAlgorithm11({ typed, equalScalar })
-  const algorithm12 = createAlgorithm12({ typed, DenseMatrix })
-  const algorithm13 = createAlgorithm13({ typed })
-  const algorithm14 = createAlgorithm14({ typed })
+  const algorithmDS0 = createAlgorithmDS0({ typed, equalScalar })
+  const algorithmDSf = createAlgorithmDSf({ typed })
+  const algorithmSSf0 = createAlgorithmSSf0({ typed, equalScalar })
+  const algorithmSs0 = createAlgorithmSs0({ typed, equalScalar })
+  const algorithmSsf = createAlgorithmSsf({ typed, DenseMatrix })
+  const matrixAlgorithmSuite = createMatrixAlgorithmSuite({ typed, matrix })
 
+  const modScalar = typed({
+    'number, number': modNumber,
+
+    'BigNumber, BigNumber': function (x, y) {
+      if (y.isNeg()) {
+        throw new Error('Cannot calculate mod for a negative divisor')
+      }
+      return y.isZero() ? x : x.mod(y)
+    },
+
+    'Fraction, Fraction': function (x, y) {
+      if (y.compare(0) < 0) {
+        throw new Error('Cannot calculate mod for a negative divisor')
+      }
+      // Workaround suggested in Fraction.js library to calculate correct modulo for negative dividend
+      return x.compare(0) >= 0 ? x.mod(y) : x.mod(y).add(y).mod(y)
+    }
+  })
+    
   /**
    * Calculates the modulus, the remainder of an integer division.
    *
@@ -60,80 +79,12 @@ export const createMod = /* #__PURE__ */ factory(name, dependencies, ({ typed, m
    * @param  {number | BigNumber | Fraction | Array | Matrix} y Divisor
    * @return {number | BigNumber | Fraction | Array | Matrix} Returns the remainder of `x` divided by `y`.
    */
-  return typed(name, {
-
-    'number, number': modNumber,
-
-    'BigNumber, BigNumber': function (x, y) {
-      if (y.isNeg()) {
-        throw new Error('Cannot calculate mod for a negative divisor')
-      }
-      return y.isZero() ? x : x.mod(y)
-    },
-
-    'Fraction, Fraction': function (x, y) {
-      if (y.compare(0) < 0) {
-        throw new Error('Cannot calculate mod for a negative divisor')
-      }
-      // Workaround suggested in Fraction.js library to calculate correct modulo for negative dividend
-      return x.compare(0) >= 0 ? x.mod(y) : x.mod(y).add(y).mod(y)
-    },
-
-    'SparseMatrix, SparseMatrix': function (x, y) {
-      return algorithm05(x, y, this, false)
-    },
-
-    'SparseMatrix, DenseMatrix': function (x, y) {
-      return algorithm02(y, x, this, true)
-    },
-
-    'DenseMatrix, SparseMatrix': function (x, y) {
-      return algorithm03(x, y, this, false)
-    },
-
-    'DenseMatrix, DenseMatrix': function (x, y) {
-      return algorithm13(x, y, this)
-    },
-
-    'Array, Array': function (x, y) {
-      // use matrix implementation
-      return this(matrix(x), matrix(y)).valueOf()
-    },
-
-    'Array, Matrix': function (x, y) {
-      // use matrix implementation
-      return this(matrix(x), y)
-    },
-
-    'Matrix, Array': function (x, y) {
-      // use matrix implementation
-      return this(x, matrix(y))
-    },
-
-    'SparseMatrix, any': function (x, y) {
-      return algorithm11(x, y, this, false)
-    },
-
-    'DenseMatrix, any': function (x, y) {
-      return algorithm14(x, y, this, false)
-    },
-
-    'any, SparseMatrix': function (x, y) {
-      return algorithm12(y, x, this, true)
-    },
-
-    'any, DenseMatrix': function (x, y) {
-      return algorithm14(y, x, this, true)
-    },
-
-    'Array, any': function (x, y) {
-      // use matrix implementation
-      return algorithm14(matrix(x), y, this, false).valueOf()
-    },
-
-    'any, Array': function (x, y) {
-      // use matrix implementation
-      return algorithm14(matrix(y), x, this, true).valueOf()
-    }
-  })
+  return typed(name, matrixAlgorithmSuite({
+    elop: modScalar,
+    SS: algorithmSSf0,
+    DS: algorithmDSf,
+    SD: algorithmDS0,
+    Ss: algorithmSs0,
+    sS: algorithmSsf
+  }))
 })

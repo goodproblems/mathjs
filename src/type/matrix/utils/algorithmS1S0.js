@@ -1,17 +1,17 @@
 import { factory } from '../../../utils/factory.js'
 import { DimensionError } from '../../../error/DimensionError.js'
 
-const name = 'algorithm09'
+const name = 'algorithmS1S0'
 const dependencies = ['typed', 'equalScalar']
 
-export const createAlgorithm09 = /* #__PURE__ */ factory(name, dependencies, ({ typed, equalScalar }) => {
+export const createAlgorithmS1S0 = /* #__PURE__ */ factory(name, dependencies, ({ typed, equalScalar }) => {
   /**
-   * Iterates over SparseMatrix A and invokes the callback function f(Aij, Bij).
-   * Callback function invoked NZA times, number of nonzero elements in A.
+   * Iterates over SparseMatrix A and SparseMatrix B nonzero items and invokes the callback function f(Aij, Bij).
+   * Callback function invoked MAX(NNZA, NNZB) times
    *
    *
-   *          ┌  f(Aij, Bij)  ; A(i,j) !== 0
-   * C(i,j) = ┤
+   *          ┌  f(Aij, Bij)  ; A(i,j) !== 0 && B(i,j) !== 0
+   * C(i,j) = ┤  A(i,j)       ; A(i,j) !== 0
    *          └  0            ; otherwise
    *
    *
@@ -23,7 +23,7 @@ export const createAlgorithm09 = /* #__PURE__ */ factory(name, dependencies, ({ 
    *
    * see https://github.com/josdejong/mathjs/pull/346#issuecomment-97620294
    */
-  return function algorithm09 (a, b, callback) {
+  return function algorithmS1S0 (a, b, callback) {
     // sparse matrix arrays
     const avalues = a._values
     const aindex = a._index
@@ -42,6 +42,9 @@ export const createAlgorithm09 = /* #__PURE__ */ factory(name, dependencies, ({ 
 
     // check rows & columns
     if (asize[0] !== bsize[0] || asize[1] !== bsize[1]) { throw new RangeError('Dimension mismatch. Matrix A (' + asize + ') must match Matrix B (' + bsize + ')') }
+
+    // sparse matrix cannot be a Pattern matrix
+    if (!avalues || !bvalues) { throw new Error('Cannot perform operation on Pattern Sparse Matrices') }
 
     // rows & columns
     const rows = asize[0]
@@ -69,55 +72,62 @@ export const createAlgorithm09 = /* #__PURE__ */ factory(name, dependencies, ({ 
     }
 
     // result arrays
-    const cvalues = avalues && bvalues ? [] : undefined
+    const cvalues = []
     const cindex = []
     const cptr = []
 
-    // workspaces
-    const x = cvalues ? [] : undefined
+    // workspace
+    const x = []
     // marks indicating we have a value in x for a given column
     const w = []
 
     // vars
-    let i, j, k, k0, k1
+    let k, k0, k1, i
 
     // loop columns
-    for (j = 0; j < columns; j++) {
+    for (let j = 0; j < columns; j++) {
       // update cptr
       cptr[j] = cindex.length
-      // column mark
+      // columns mark
       const mark = j + 1
-      // check we need to process values
-      if (x) {
-        // loop B(:,j)
-        for (k0 = bptr[j], k1 = bptr[j + 1], k = k0; k < k1; k++) {
-          // row
-          i = bindex[k]
-          // update workspace
-          w[i] = mark
-          x[i] = bvalues[k]
-        }
-      }
-      // loop A(:,j)
+      // loop values in a
       for (k0 = aptr[j], k1 = aptr[j + 1], k = k0; k < k1; k++) {
         // row
         i = aindex[k]
-        // check we need to process values
-        if (x) {
-          // b value @ i,j
-          const vb = w[i] === mark ? x[i] : zero
-          // invoke f
-          const vc = cf(avalues[k], vb)
-          // check zero value
-          if (!eq(vc, zero)) {
-            // push index
-            cindex.push(i)
-            // push value
-            cvalues.push(vc)
-          }
+        // mark workspace
+        w[i] = mark
+        // set value
+        x[i] = avalues[k]
+        // add index
+        cindex.push(i)
+      }
+      // loop values in b
+      for (k0 = bptr[j], k1 = bptr[j + 1], k = k0; k < k1; k++) {
+        // row
+        i = bindex[k]
+        // check value exists in workspace
+        if (w[i] === mark) {
+          // evaluate callback
+          x[i] = cf(x[i], bvalues[k])
+        }
+      }
+      // initialize first index in j
+      k = cptr[j]
+      // loop index in j
+      while (k < cindex.length) {
+        // row
+        i = cindex[k]
+        // value @ i
+        const v = x[i]
+        // check for zero value
+        if (!eq(v, zero)) {
+          // push value
+          cvalues.push(v)
+          // increment pointer
+          k++
         } else {
-          // push index
-          cindex.push(i)
+          // remove value @ i, do not increment pointer
+          cindex.splice(k, 1)
         }
       }
     }

@@ -1,9 +1,8 @@
 import { factory } from '../../utils/factory.js'
-import { createAlgorithm02 } from '../../type/matrix/utils/algorithm02.js'
-import { createAlgorithm09 } from '../../type/matrix/utils/algorithm09.js'
-import { createAlgorithm11 } from '../../type/matrix/utils/algorithm11.js'
-import { createAlgorithm13 } from '../../type/matrix/utils/algorithm13.js'
-import { createAlgorithm14 } from '../../type/matrix/utils/algorithm14.js'
+import { createAlgorithmDS0 } from '../../type/matrix/utils/algorithmDS0.js'
+import { createAlgorithmSfS0 } from '../../type/matrix/utils/algorithmSfS0.js'
+import { createAlgorithmSs0 } from '../../type/matrix/utils/algorithmSs0.js'
+
 
 const name = 'dotMultiply'
 const dependencies = [
@@ -14,11 +13,10 @@ const dependencies = [
 ]
 
 export const createDotMultiply = /* #__PURE__ */ factory(name, dependencies, ({ typed, matrix, equalScalar, multiplyScalar }) => {
-  const algorithm02 = createAlgorithm02({ typed, equalScalar })
-  const algorithm09 = createAlgorithm09({ typed, equalScalar })
-  const algorithm11 = createAlgorithm11({ typed, equalScalar })
-  const algorithm13 = createAlgorithm13({ typed })
-  const algorithm14 = createAlgorithm14({ typed })
+  const algorithmDS0 = createAlgorithmDS0({ typed, equalScalar })
+  const algorithmSfS0 = createAlgorithmSfS0({ typed, equalScalar })
+  const algorithmSs0 = createAlgorithmSs0({ typed, equalScalar })
+  const matrixAlgorithmSuite = createMatrixAlgorithmSuite({ typed, matrix })
 
   /**
    * Multiply two matrices element wise. The function accepts both matrices and
@@ -46,65 +44,10 @@ export const createDotMultiply = /* #__PURE__ */ factory(name, dependencies, ({ 
    * @param  {number | BigNumber | Fraction | Complex | Unit | Array | Matrix} y Right hand value
    * @return {number | BigNumber | Fraction | Complex | Unit | Array | Matrix}                    Multiplication of `x` and `y`
    */
-  return typed(name, {
-
-    'any, any': multiplyScalar,
-
-    'SparseMatrix, SparseMatrix': function (x, y) {
-      return algorithm09(x, y, multiplyScalar, false)
-    },
-
-    'SparseMatrix, DenseMatrix': function (x, y) {
-      return algorithm02(y, x, multiplyScalar, true)
-    },
-
-    'DenseMatrix, SparseMatrix': function (x, y) {
-      return algorithm02(x, y, multiplyScalar, false)
-    },
-
-    'DenseMatrix, DenseMatrix': function (x, y) {
-      return algorithm13(x, y, multiplyScalar)
-    },
-
-    'Array, Array': function (x, y) {
-      // use matrix implementation
-      return this(matrix(x), matrix(y)).valueOf()
-    },
-
-    'Array, Matrix': function (x, y) {
-      // use matrix implementation
-      return this(matrix(x), y)
-    },
-
-    'Matrix, Array': function (x, y) {
-      // use matrix implementation
-      return this(x, matrix(y))
-    },
-
-    'SparseMatrix, any': function (x, y) {
-      return algorithm11(x, y, multiplyScalar, false)
-    },
-
-    'DenseMatrix, any': function (x, y) {
-      return algorithm14(x, y, multiplyScalar, false)
-    },
-
-    'any, SparseMatrix': function (x, y) {
-      return algorithm11(y, x, multiplyScalar, true)
-    },
-
-    'any, DenseMatrix': function (x, y) {
-      return algorithm14(y, x, multiplyScalar, true)
-    },
-
-    'Array, any': function (x, y) {
-      // use matrix implementation
-      return algorithm14(matrix(x), y, multiplyScalar, false).valueOf()
-    },
-
-    'any, Array': function (x, y) {
-      // use matrix implementation
-      return algorithm14(matrix(y), x, multiplyScalar, true).valueOf()
-    }
-  })
+  return typed(name, matrixAlgorithmSuite({
+    elop: multiplyScalar,
+    SS: algorithmSfS0,
+    DS: algorithmDS0,
+    Ss: algorithmSs0
+  }))
 })

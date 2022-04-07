@@ -1,7 +1,7 @@
 import { factory } from '../../utils/factory.js'
 import { extend } from '../../utils/object.js'
-import { createAlgorithm11 } from '../../type/matrix/utils/algorithm11.js'
-import { createAlgorithm14 } from '../../type/matrix/utils/algorithm14.js'
+import { createAlgorithmSs0 } from '../../type/matrix/utils/algorithmSs0.js'
+import { createAlgorithmDs } from '../../type/matrix/utils/algorithmDs.js'
 
 const name = 'divide'
 const dependencies = [
@@ -14,8 +14,8 @@ const dependencies = [
 ]
 
 export const createDivide = /* #__PURE__ */ factory(name, dependencies, ({ typed, matrix, multiply, equalScalar, divideScalar, inv }) => {
-  const algorithm11 = createAlgorithm11({ typed, equalScalar })
-  const algorithm14 = createAlgorithm14({ typed })
+  const algorithmSs0 = createAlgorithmSs0({ typed, equalScalar })
+  const algorithmDs = createAlgorithmDs({ typed })
 
   /**
    * Divide two values, `x / y`.
@@ -60,16 +60,16 @@ export const createDivide = /* #__PURE__ */ factory(name, dependencies, ({ typed
     },
 
     'DenseMatrix, any': function (x, y) {
-      return algorithm14(x, y, divideScalar, false)
+      return algorithmDs(x, y, divideScalar, false)
     },
 
     'SparseMatrix, any': function (x, y) {
-      return algorithm11(x, y, divideScalar, false)
+      return algorithmSs0(x, y, divideScalar, false)
     },
 
     'Array, any': function (x, y) {
       // use matrix implementation
-      return algorithm14(matrix(x), y, divideScalar, false).valueOf()
+      return algorithmDs(matrix(x), y, divideScalar, false).valueOf()
     },
 
     'any, Array | Matrix': function (x, y) {

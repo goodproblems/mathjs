@@ -1,3 +1,7 @@
+ // signatures for these functions
+const b1 = 'BigNumber'
+const b2 = 'BigNumber,BigNumber'
+
 /**
  * Bitwise and for Bignumbers
  *
@@ -64,6 +68,7 @@ export function bitAndBigNumber (x, y) {
   }
   return bitwise(x, y, function (a, b) { return a & b })
 }
+bitAndBigNumber.signature = b2
 
 /**
  * Bitwise not
@@ -86,6 +91,7 @@ export function bitNotBigNumber (x) {
   BigNumber.config({ precision: prevPrec })
   return result
 }
+bitNotBigNumber.signature = b1
 
 /**
  * Bitwise OR for BigNumbers
@@ -138,6 +144,7 @@ export function bitOrBigNumber (x, y) {
 
   return bitwise(x, y, function (a, b) { return a | b })
 }
+bitOrBigNumber.signature = b2
 
 /**
  * Applies bitwise function to numbers
@@ -327,6 +334,7 @@ export function bitXor (x, y) {
   }
   return bitwise(x, y, function (a, b) { return a ^ b })
 }
+bitXor.signature = b2
 
 /**
  * Bitwise left shift
@@ -368,6 +376,7 @@ export function leftShiftBigNumber (x, y) {
   }
   return x.times(new BigNumber(2).pow(y))
 }
+leftShiftBigNumber.signature = b2
 
 /*
  * Special Cases:
@@ -416,3 +425,4 @@ export function rightArithShiftBigNumber (x, y) {
   }
   return x.div(new BigNumber(2).pow(y)).floor()
 }
+rightArithShift.signature = b2

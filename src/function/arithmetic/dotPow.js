@@ -1,10 +1,11 @@
 import { factory } from '../../utils/factory.js'
-import { createAlgorithm03 } from '../../type/matrix/utils/algorithm03.js'
-import { createAlgorithm07 } from '../../type/matrix/utils/algorithm07.js'
-import { createAlgorithm11 } from '../../type/matrix/utils/algorithm11.js'
-import { createAlgorithm12 } from '../../type/matrix/utils/algorithm12.js'
-import { createAlgorithm13 } from '../../type/matrix/utils/algorithm13.js'
-import { createAlgorithm14 } from '../../type/matrix/utils/algorithm14.js'
+import { createAlgorithmDSf } from '../../type/matrix/utils/algorithmDSf.js'
+import { createAlgorithmSSff } from '../../type/matrix/utils/algorithmSSff.js'
+import { createAlgorithmSs0 } from '../../type/matrix/utils/algorithmSs0.js'
+import { createAlgorithmSsf } from '../../type/matrix/utils/algorithmSsf.js'
+import {
+  createMatrixAlgorithmSuite
+} from '../../type/matrix/utils/matrixAlgorithmSuite.js'
 
 const name = 'dotPow'
 const dependencies = [
@@ -16,12 +17,11 @@ const dependencies = [
 ]
 
 export const createDotPow = /* #__PURE__ */ factory(name, dependencies, ({ typed, equalScalar, matrix, pow, DenseMatrix }) => {
-  const algorithm03 = createAlgorithm03({ typed })
-  const algorithm07 = createAlgorithm07({ typed, DenseMatrix })
-  const algorithm11 = createAlgorithm11({ typed, equalScalar })
-  const algorithm12 = createAlgorithm12({ typed, DenseMatrix })
-  const algorithm13 = createAlgorithm13({ typed })
-  const algorithm14 = createAlgorithm14({ typed })
+  const algorithmDSf = createAlgorithmDSf({ typed })
+  const algorithmSSff = createAlgorithmSSff({ typed, DenseMatrix })
+  const algorithmSs0 = createAlgorithmSs0({ typed, equalScalar })
+  const algorithmSsf = createAlgorithmSsf({ typed, DenseMatrix })
+  const matrixAlgorithmSuite = createMatrixAlgorithmSuite({ typed, matrix })
 
   /**
    * Calculates the power of x to y element wise.
@@ -46,65 +46,11 @@ export const createDotPow = /* #__PURE__ */ factory(name, dependencies, ({ typed
    * @param  {number | BigNumber | Complex | Unit | Array | Matrix} y  The exponent
    * @return {number | BigNumber | Complex | Unit | Array | Matrix}                     The value of `x` to the power `y`
    */
-  return typed(name, {
-
-    'any, any': pow,
-
-    'SparseMatrix, SparseMatrix': function (x, y) {
-      return algorithm07(x, y, pow, false)
-    },
-
-    'SparseMatrix, DenseMatrix': function (x, y) {
-      return algorithm03(y, x, pow, true)
-    },
-
-    'DenseMatrix, SparseMatrix': function (x, y) {
-      return algorithm03(x, y, pow, false)
-    },
-
-    'DenseMatrix, DenseMatrix': function (x, y) {
-      return algorithm13(x, y, pow)
-    },
-
-    'Array, Array': function (x, y) {
-      // use matrix implementation
-      return this(matrix(x), matrix(y)).valueOf()
-    },
-
-    'Array, Matrix': function (x, y) {
-      // use matrix implementation
-      return this(matrix(x), y)
-    },
-
-    'Matrix, Array': function (x, y) {
-      // use matrix implementation
-      return this(x, matrix(y))
-    },
-
-    'SparseMatrix, any': function (x, y) {
-      return algorithm11(x, y, this, false)
-    },
-
-    'DenseMatrix, any': function (x, y) {
-      return algorithm14(x, y, this, false)
-    },
-
-    'any, SparseMatrix': function (x, y) {
-      return algorithm12(y, x, this, true)
-    },
-
-    'any, DenseMatrix': function (x, y) {
-      return algorithm14(y, x, this, true)
-    },
-
-    'Array, any': function (x, y) {
-      // use matrix implementation
-      return algorithm14(matrix(x), y, this, false).valueOf()
-    },
-
-    'any, Array': function (x, y) {
-      // use matrix implementation
-      return algorithm14(matrix(y), x, this, true).valueOf()
-    }
-  })
+  return typed(name, extend({ 'any, any': pow }, matrixAlgorithmSuite({
+    elop: (x, y) => pow(x, y) // pow has matrix signatures we don't want
+    SS: algorithmSSff,
+    DS: algorithmDSf,
+    Ss: algorithmSs0,
+    sS: algorithmSsf,
+  })))
 })

@@ -1,9 +1,10 @@
 import { factory } from '../../utils/factory.js'
-import { createAlgorithm03 } from '../../type/matrix/utils/algorithm03.js'
-import { createAlgorithm07 } from '../../type/matrix/utils/algorithm07.js'
-import { createAlgorithm12 } from '../../type/matrix/utils/algorithm12.js'
-import { createAlgorithm13 } from '../../type/matrix/utils/algorithm13.js'
-import { createAlgorithm14 } from '../../type/matrix/utils/algorithm14.js'
+import { createAlgorithmDSf } from '../../type/matrix/utils/algorithmDSf.js'
+import { createAlgorithmSSff } from '../../type/matrix/utils/algorithmSSff.js'
+import { createAlgorithmSsf } from '../../type/matrix/utils/algorithmSsf.js'
+import {
+  createMatrixAlgorithmSuite
+} from '../../type/matrix/utils/matrixAlgorithmSuite.js'
 
 const name = 'equal'
 const dependencies = [
@@ -13,12 +14,23 @@ const dependencies = [
   'DenseMatrix'
 ]
 
+function baseEqual (equal) {
+  return function (x, y) {
+    // strict equality for null and undefined?
+    if (x === null) { return y === null }
+    if (y === null) { return x === null }
+    if (x === undefined) { return y === undefined }
+    if (y === undefined) { return x === undefined }
+
+    return equal(x, y)
+  }
+}
+
 export const createEqual = /* #__PURE__ */ factory(name, dependencies, ({ typed, matrix, equalScalar, DenseMatrix }) => {
-  const algorithm03 = createAlgorithm03({ typed })
-  const algorithm07 = createAlgorithm07({ typed, DenseMatrix })
-  const algorithm12 = createAlgorithm12({ typed, DenseMatrix })
-  const algorithm13 = createAlgorithm13({ typed })
-  const algorithm14 = createAlgorithm14({ typed })
+  const algorithmDSf = createAlgorithmDSf({ typed })
+  const algorithmSSff = createAlgorithmSSff({ typed, DenseMatrix })
+  const algorithmSsf = createAlgorithmSsf({ typed, DenseMatrix })
+  const matrixAlgorithmSuite = createMatrixAlgorithmSuite({ typed, matrix })
 
   /**
    * Test whether two values are equal.
@@ -64,87 +76,16 @@ export const createEqual = /* #__PURE__ */ factory(name, dependencies, ({ typed,
    * @param  {number | BigNumber | boolean | Complex | Unit | string | Array | Matrix} y Second value to compare
    * @return {boolean | Array | Matrix} Returns true when the compared values are equal, else returns false
    */
-  return typed(name, {
-
-    'any, any': function (x, y) {
-      // strict equality for null and undefined?
-      if (x === null) { return y === null }
-      if (y === null) { return x === null }
-      if (x === undefined) { return y === undefined }
-      if (y === undefined) { return x === undefined }
-
-      return equalScalar(x, y)
-    },
-
-    'SparseMatrix, SparseMatrix': function (x, y) {
-      return algorithm07(x, y, equalScalar)
-    },
-
-    'SparseMatrix, DenseMatrix': function (x, y) {
-      return algorithm03(y, x, equalScalar, true)
-    },
-
-    'DenseMatrix, SparseMatrix': function (x, y) {
-      return algorithm03(x, y, equalScalar, false)
-    },
-
-    'DenseMatrix, DenseMatrix': function (x, y) {
-      return algorithm13(x, y, equalScalar)
-    },
-
-    'Array, Array': function (x, y) {
-      // use matrix implementation
-      return this(matrix(x), matrix(y)).valueOf()
-    },
-
-    'Array, Matrix': function (x, y) {
-      // use matrix implementation
-      return this(matrix(x), y)
-    },
-
-    'Matrix, Array': function (x, y) {
-      // use matrix implementation
-      return this(x, matrix(y))
-    },
-
-    'SparseMatrix, any': function (x, y) {
-      return algorithm12(x, y, equalScalar, false)
-    },
-
-    'DenseMatrix, any': function (x, y) {
-      return algorithm14(x, y, equalScalar, false)
-    },
-
-    'any, SparseMatrix': function (x, y) {
-      return algorithm12(y, x, equalScalar, true)
-    },
-
-    'any, DenseMatrix': function (x, y) {
-      return algorithm14(y, x, equalScalar, true)
-    },
-
-    'Array, any': function (x, y) {
-      // use matrix implementation
-      return algorithm14(matrix(x), y, equalScalar, false).valueOf()
-    },
-
-    'any, Array': function (x, y) {
-      // use matrix implementation
-      return algorithm14(matrix(y), x, equalScalar, true).valueOf()
-    }
-  })
-})
+  return typed(name, extend(
+    { 'any, any': baseEqual(equalScalar) },
+    matrixAlgorithmSuite({
+      elop: equalScalar,
+      SS: algorithmSSff,
+      DS: algorithmDSf,
+      Ss: algorithmSsf
+    })))
+})      
 
 export const createEqualNumber = factory(name, ['typed', 'equalScalar'], ({ typed, equalScalar }) => {
-  return typed(name, {
-    'any, any': function (x, y) {
-      // strict equality for null and undefined?
-      if (x === null) { return y === null }
-      if (y === null) { return x === null }
-      if (x === undefined) { return y === undefined }
-      if (y === undefined) { return x === undefined }
-
-      return equalScalar(x, y)
-    }
-  })
+  return typed(name, { 'any, any': baseUnequal(equalScalar) })
 })

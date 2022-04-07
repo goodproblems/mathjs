@@ -1,9 +1,10 @@
 import { bitXor as bigBitXor } from '../../utils/bignumber/bitwise.js'
-import { createAlgorithm03 } from '../../type/matrix/utils/algorithm03.js'
-import { createAlgorithm07 } from '../../type/matrix/utils/algorithm07.js'
-import { createAlgorithm12 } from '../../type/matrix/utils/algorithm12.js'
-import { createAlgorithm13 } from '../../type/matrix/utils/algorithm13.js'
-import { createAlgorithm14 } from '../../type/matrix/utils/algorithm14.js'
+import { createAlgorithmDSf } from '../../type/matrix/utils/algorithmDSf.js'
+import { createAlgorithmSSff } from '../../type/matrix/utils/algorithmSSff.js'
+import { createAlgorithmSsf } from '../../type/matrix/utils/algorithmSsf.js'
+import {
+  createMatrixAlgorithmSuite
+} from '../../type/matrix/utils/matrixAlgorithmSuite.js'
 import { factory } from '../../utils/factory.js'
 import { bitXorNumber } from '../../plain/number/index.js'
 
@@ -15,12 +16,16 @@ const dependencies = [
 ]
 
 export const createBitXor = /* #__PURE__ */ factory(name, dependencies, ({ typed, matrix, DenseMatrix }) => {
-  const algorithm03 = createAlgorithm03({ typed })
-  const algorithm07 = createAlgorithm07({ typed, DenseMatrix })
-  const algorithm12 = createAlgorithm12({ typed, DenseMatrix })
-  const algorithm13 = createAlgorithm13({ typed })
-  const algorithm14 = createAlgorithm14({ typed })
+  const algorithmDSf = createAlgorithmDSf({ typed })
+  const algorithmSSff = createAlgorithmSSff({ typed, DenseMatrix })
+  const algorithmSsf = createAlgorithmSsf({ typed, DenseMatrix })
+  const matrixAlgorithmSuite = createMatrixAlgorithmSuite({ typed, matrix })
 
+  const bitXorScalar = typed({
+    'number, number': bitXorNumber,
+    'BigNumber, BigNumber': bigBitXor
+  })
+    
   /**
    * Bitwise XOR two values, `x ^ y`.
    * For matrices, the function is evaluated element wise.
@@ -43,67 +48,10 @@ export const createBitXor = /* #__PURE__ */ factory(name, dependencies, ({ typed
    * @param  {number | BigNumber | Array | Matrix} y Second value to xor
    * @return {number | BigNumber | Array | Matrix} XOR of `x` and `y`
    */
-  return typed(name, {
-
-    'number, number': bitXorNumber,
-
-    'BigNumber, BigNumber': bigBitXor,
-
-    'SparseMatrix, SparseMatrix': function (x, y) {
-      return algorithm07(x, y, this)
-    },
-
-    'SparseMatrix, DenseMatrix': function (x, y) {
-      return algorithm03(y, x, this, true)
-    },
-
-    'DenseMatrix, SparseMatrix': function (x, y) {
-      return algorithm03(x, y, this, false)
-    },
-
-    'DenseMatrix, DenseMatrix': function (x, y) {
-      return algorithm13(x, y, this)
-    },
-
-    'Array, Array': function (x, y) {
-      // use matrix implementation
-      return this(matrix(x), matrix(y)).valueOf()
-    },
-
-    'Array, Matrix': function (x, y) {
-      // use matrix implementation
-      return this(matrix(x), y)
-    },
-
-    'Matrix, Array': function (x, y) {
-      // use matrix implementation
-      return this(x, matrix(y))
-    },
-
-    'SparseMatrix, any': function (x, y) {
-      return algorithm12(x, y, this, false)
-    },
-
-    'DenseMatrix, any': function (x, y) {
-      return algorithm14(x, y, this, false)
-    },
-
-    'any, SparseMatrix': function (x, y) {
-      return algorithm12(y, x, this, true)
-    },
-
-    'any, DenseMatrix': function (x, y) {
-      return algorithm14(y, x, this, true)
-    },
-
-    'Array, any': function (x, y) {
-      // use matrix implementation
-      return algorithm14(matrix(x), y, this, false).valueOf()
-    },
-
-    'any, Array': function (x, y) {
-      // use matrix implementation
-      return algorithm14(matrix(y), x, this, true).valueOf()
-    }
-  })
+  return typed(name, matrixAlgorithmSuite({
+    elop: bitXorScalar,
+    SS: algorithmSSff,
+    DS: algorithmDSf,
+    Ss: algorithmSsf
+  }))
 })

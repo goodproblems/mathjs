@@ -1,10 +1,10 @@
 import { factory } from '../../../utils/factory.js'
 import { DimensionError } from '../../../error/DimensionError.js'
 
-const name = 'algorithm03'
+const name = 'algorithmDSf'
 const dependencies = ['typed']
 
-export const createAlgorithm03 = /* #__PURE__ */ factory(name, dependencies, ({ typed }) => {
+export const createAlgorithmDSf = /* #__PURE__ */ factory(name, dependencies, ({ typed }) => {
   /**
    * Iterates over SparseMatrix items and invokes the callback function f(Dij, Sij).
    * Callback function invoked M*N times.
@@ -24,7 +24,7 @@ export const createAlgorithm03 = /* #__PURE__ */ factory(name, dependencies, ({ 
    *
    * see https://github.com/josdejong/mathjs/pull/346#issuecomment-97477571
    */
-  return function algorithm03 (denseMatrix, sparseMatrix, callback, inverse) {
+  return function algorithmDSf (denseMatrix, sparseMatrix, callback, inverse) {
     // dense matrix arrays
     const adata = denseMatrix._data
     const asize = denseMatrix._size
