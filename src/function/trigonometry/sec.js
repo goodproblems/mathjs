@@ -1,10 +1,13 @@
 import { factory } from '../../utils/factory.js'
 import { secNumber } from '../../plain/number/index.js'
+import { createTrigUnitSignature } from './trigUnitSignature.js'
 
 const name = 'sec'
 const dependencies = ['typed', 'BigNumber']
 
 export const createSec = /* #__PURE__ */ factory(name, dependencies, ({ typed, BigNumber }) => {
+  const trigUnitSignature = createTrigUnitSignature({ typed })
+
   /**
    * Calculate the secant of a value, defined as `sec(x) = 1/cos(x)`.
    *
@@ -36,13 +39,6 @@ export const createSec = /* #__PURE__ */ factory(name, dependencies, ({ typed, B
 
     BigNumber: function (x) {
       return new BigNumber(1).div(x.cos())
-    },
-
-    Unit: function (x) {
-      if (!x.hasBase(x.constructor.BASE_UNITS.ANGLE)) {
-        throw new TypeError('Unit in function sec is no angle')
-      }
-      return this(x.value)
     }
-  })
+  }, trigUnitSignature)
 })

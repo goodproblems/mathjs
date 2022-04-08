@@ -30,10 +30,9 @@ export const createTranspose = /* #__PURE__ */ factory(name, dependencies, ({ ty
    */
   return typed('transpose', {
 
-    Array: function (x) {
-      // use dense matrix implementation
-      return this(matrix(x)).valueOf()
-    },
+    Array: typed.referTo('Matrix', transposeMatrix => x => {
+      return transposeMatrix(matrix(x)).valueOf()
+    }),
 
     Matrix: function (x) {
       // matrix size

@@ -51,16 +51,16 @@ export const createSign = /* #__PURE__ */ factory(name, dependencies, ({ typed, 
       return new Fraction(x.s, 1)
     },
 
-    'Array | Matrix': function (x) {
+    'Array | Matrix': typed.referToSelf(self => x => {
       // deep map collection, skip zeros since sign(0) = 0
-      return deepMap(x, this, true)
-    },
+      return deepMap(x, self, true)
+    }),
 
-    Unit: function (x) {
+    Unit: typed.referToSelf(self => x => {
       if (!x._isDerived() && x.units[0].unit.offset !== 0) {
         throw new TypeError('sign is ambiguous for units with offset')
       }
-      return this(x.value)
-    }
+      return self(x.value)
+    })
   })
 })

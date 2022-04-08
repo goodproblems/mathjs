@@ -16,9 +16,9 @@ const dependencies = [
   'DenseMatrix'
 ]
 
-function largerEqEpsilon (eps) {
+function largerEqEpsilon (conf) {
   return function (x, y) {
-    return x >= y || nearlyEqual(x, y, eps)
+    return x >= y || nearlyEqual(x, y, conf.epsilon)
   }
 }
 
@@ -30,7 +30,7 @@ export const createLargerEq = /* #__PURE__ */ factory(name, dependencies, ({ typ
 
   const largerEqScalar = typed({
     'boolean, boolean': (x, y) => x >= y,
-    'number, number': largerEqEpsilon(config.epsilon),
+    'number, number': largerEqEpsilon(config),
     'BigNumber, BigNumber': function (x, y) {
       return x.gte(y) || bigNearlyEqual(x, y, config.epsilon)
     },
@@ -84,5 +84,5 @@ export const createLargerEq = /* #__PURE__ */ factory(name, dependencies, ({ typ
 })
 
 export const createLargerEqNumber = /* #__PURE__ */ factory(name, ['typed', 'config'], ({ typed, config }) => {
-  return typed(name, { 'number, number': largerEqEpsilon(config.epsilon) })
+  return typed(name, { 'number, number': largerEqEpsilon(config) })
 })

@@ -49,10 +49,10 @@ export const createUnaryPlus = /* #__PURE__ */ factory(name, dependencies, ({ ty
       return x.clone()
     },
 
-    'Array | Matrix': function (x) {
+    'Array | Matrix': typed.referToSelf(self => x => {
       // deep map collection, skip zeros since unaryPlus(0) = 0
-      return deepMap(x, this, true)
-    },
+      return deepMap(x, self, true)
+    }),
 
     'boolean | string': function (x) {
       // convert to a number or bignumber

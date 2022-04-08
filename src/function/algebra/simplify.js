@@ -173,96 +173,76 @@ export const createSimplify = /* #__PURE__ */ factory(name, dependencies, (
    *            Optional list with custom rules
    * @return {Node} Returns the simplified form of `expr`
    */
+  const tempStringNode =
+    { from: 'string', to: 'Node', convert: s => parse(s) }
+  const tempObjectMap =
+    { from: 'Object', to: 'Map', convert: o => createMap(o) }
+  typed.addConversions([tempStringNode, tempObjectMap])
+
   const simplify = typed('simplify', {
-    string: function (expr) {
-      return this(parse(expr), this.rules, createEmptyMap(), {})
-    },
+    Node: typed.referToSelf(self => expr => {
+      return self(expr, self.rules)
+    }),
+    
+    'Node, Map': typed.referToSelf(self => (expr, scope) => {
+      return self(expr, self.rules, scope)
+    }),
 
-    'string, Map | Object': function (expr, scope) {
-      return this(parse(expr), this.rules, scope, {})
-    },
+    'Node, Map, Object': typed.referToSelf(self => (expr, scope, options) => {
+      return self(expr, self.rules, scope, options)
+    }),
 
-    'string, Map | Object, Object': function (expr, scope, options) {
-      return this(parse(expr), this.rules, scope, options)
-    },
+    'Node, Array': _simplify,
 
-    'string, Array': function (expr, rules) {
-      return this(parse(expr), rules, createEmptyMap(), {})
-    },
+    'Node, Array, Map': _simplify,
 
-    'string, Array, Map | Object': function (expr, rules, scope) {
-      return this(parse(expr), rules, scope, {})
-    },
-
-    'string, Array, Map | Object, Object': function (expr, rules, scope, options) {
-      return this(parse(expr), rules, scope, options)
-    },
-
-    'Node, Map | Object': function (expr, scope) {
-      return this(expr, this.rules, scope, {})
-    },
-
-    'Node, Map | Object, Object': function (expr, scope, options) {
-      return this(expr, this.rules, scope, options)
-    },
-
-    Node: function (expr) {
-      return this(expr, this.rules, createEmptyMap(), {})
-    },
-
-    'Node, Array': function (expr, rules) {
-      return this(expr, rules, createEmptyMap(), {})
-    },
-
-    'Node, Array, Map | Object': function (expr, rules, scope) {
-      return this(expr, rules, scope, {})
-    },
-
-    'Node, Array, Object, Object': function (expr, rules, scope, options) {
-      return this(expr, rules, createMap(scope), options)
-    },
-
-    'Node, Array, Map, Object': function (expr, rules, scope, options) {
-      const debug = options.consoleDebug
-      rules = _buildRules(rules, options.context)
-      let res = resolve(expr, scope)
-      res = removeParens(res)
-      const visited = {}
-      let str = res.toString({ parenthesis: 'all' })
-      while (!visited[str]) {
-        visited[str] = true
-        _lastsym = 0 // counter for placeholder symbols
-        let laststr = str
-        if (debug) console.log('Working on: ', str)
-        for (let i = 0; i < rules.length; i++) {
-          let rulestr = ''
-          if (typeof rules[i] === 'function') {
-            res = rules[i](res, options)
-            if (debug) rulestr = rules[i].name
-          } else {
-            flatten(res, options.context)
-            res = applyRule(res, rules[i], options.context)
-            if (debug) {
-              rulestr = `${rules[i].l.toString()} -> ${rules[i].r.toString()}`
-            }
-          }
-          if (debug) {
-            const newstr = res.toString({ parenthesis: 'all' })
-            if (newstr !== laststr) {
-              console.log('Applying', rulestr, 'produced', newstr)
-              laststr = newstr
-            }
-          }
-          /* Use left-heavy binary tree internally,
-           * since custom rule functions may expect it
-           */
-          unflattenl(res, options.context)
-        }
-        str = res.toString({ parenthesis: 'all' })
-      }
-      return res
-    }
+    'Node, Array, Map, Object': _simplify
   })
+
+  typed.removeConversion(tempStringNode)
+  typed.removeConversion(tempObjectMap)
+
+  function _simplify (expr, rules, scope = createEmptyMap(), options = {}) {
+    const debug = options.consoleDebug
+    rules = _buildRules(rules, options.context)
+    let res = resolve(expr, scope)
+    res = removeParens(res)
+    const visited = {}
+    let str = res.toString({ parenthesis: 'all' })
+    while (!visited[str]) {
+      visited[str] = true
+      _lastsym = 0 // counter for placeholder symbols
+      let laststr = str
+      if (debug) console.log('Working on: ', str)
+      for (let i = 0; i < rules.length; i++) {
+        let rulestr = ''
+        if (typeof rules[i] === 'function') {
+          res = rules[i](res, options)
+          if (debug) rulestr = rules[i].name
+        } else {
+          flatten(res, options.context)
+          res = applyRule(res, rules[i], options.context)
+          if (debug) {
+            rulestr = `${rules[i].l.toString()} -> ${rules[i].r.toString()}`
+          }
+        }
+        if (debug) {
+          const newstr = res.toString({ parenthesis: 'all' })
+          if (newstr !== laststr) {
+            console.log('Applying', rulestr, 'produced', newstr)
+            laststr = newstr
+          }
+        }
+        /* Use left-heavy binary tree internally,
+         * since custom rule functions may expect it
+         */
+        unflattenl(res, options.context)
+      }
+      str = res.toString({ parenthesis: 'all' })
+    }
+    return res
+  }
+
   simplify.defaultContext = defaultContext
   simplify.realContext = realContext
   simplify.positiveContext = positiveContext

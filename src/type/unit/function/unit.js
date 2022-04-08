@@ -52,8 +52,6 @@ export const createUnitFunction = /* #__PURE__ */ factory(name, dependencies, ({
       return new Unit(value)
     },
 
-    'Array | Matrix': function (x) {
-      return deepMap(x, this)
-    }
+    'Array | Matrix': typed.referToSelf(self => m => deepMap(m, self))
   })
 })

@@ -104,13 +104,15 @@ const dependencies = [
 export const createTyped = /* #__PURE__ */ factory('typed', dependencies, function createTyped ({ BigNumber, Complex, DenseMatrix, Fraction }) {
   // TODO: typed-function must be able to silently ignore signatures with unknown data types
 
+  
   // get a new instance of typed-function
   const typed = _createTyped()
 
   // define all types. The order of the types determines in which order function
   // arguments are type-checked (so for performance it's important to put the
   // most used types first).
-  typed.types = [
+  typed.clear()
+  typed.addTypes([
     { name: 'number', test: isNumber },
     { name: 'Complex', test: isComplex },
     { name: 'BigNumber', test: isBigNumber },
@@ -151,9 +153,9 @@ export const createTyped = /* #__PURE__ */ factory('typed', dependencies, functi
 
     { name: 'Map', test: isMap },
     { name: 'Object', test: isObject } // order 'Object' last, it matches on other classes too
-  ]
+  ])
 
-  typed.conversions = [
+  typed.addConversions([
     {
       from: 'number',
       to: 'BigNumber',
@@ -331,7 +333,7 @@ export const createTyped = /* #__PURE__ */ factory('typed', dependencies, functi
         return matrix.valueOf()
       }
     }
-  ]
+  ])
 
   // Provide a suggestion on how to call a function elementwise
   // This was added primarily as guidance for the v10 -> v11 transition,

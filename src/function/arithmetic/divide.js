@@ -1,5 +1,4 @@
 import { factory } from '../../utils/factory.js'
-import { extend } from '../../utils/object.js'
 import { createAlgorithmSs0 } from '../../type/matrix/utils/algorithmSs0.js'
 import { createAlgorithmDs } from '../../type/matrix/utils/algorithmDs.js'
 
@@ -48,9 +47,7 @@ export const createDivide = /* #__PURE__ */ factory(name, dependencies, ({ typed
    * @param  {number | BigNumber | Fraction | Complex | Array | Matrix} y          Denominator
    * @return {number | BigNumber | Fraction | Complex | Unit | Array | Matrix}                      Quotient, `x / y`
    */
-  return typed('divide', extend({
-    // we extend the signatures of divideScalar with signatures dealing with matrices
-
+  return typed('divide', divideScalar, {
     'Array | Matrix, Array | Matrix': function (x, y) {
       // TODO: implement matrix right division using pseudo inverse
       // https://www.mathworks.nl/help/matlab/ref/mrdivide.html
@@ -75,5 +72,5 @@ export const createDivide = /* #__PURE__ */ factory(name, dependencies, ({ typed
     'any, Array | Matrix': function (x, y) {
       return multiply(x, inv(y))
     }
-  }, divideScalar.signatures))
+  })
 })

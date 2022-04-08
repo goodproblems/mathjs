@@ -19,9 +19,9 @@ const dependencies = [
   'DenseMatrix'
 ]
 
-function compareEpsilon (eps) {
+function compareEpsilon (conf) {
   return function (x, y) {
-    return nearlyEqual(x, y, config.eps)
+    return nearlyEqual(x, y, conf.epsilon)
       ? 0
       : (x > y ? 1 : -1)
   }
@@ -35,7 +35,7 @@ export const createCompare = /* #__PURE__ */ factory(name, dependencies, ({ type
 
   const compareScalar = typed({
     'boolean, boolean': (x, y) => x === y ? 0 : (x > y ? 1 : -1),
-    'number, number': compareEpsilon(config.epsilon),
+    'number, number': compareEpsilon(config),
     'BigNumber, BigNumber': function (x, y) {
       return bigNearlyEqual(x, y, config.epsilon)
         ? new BigNumber(0)
@@ -101,5 +101,5 @@ export const createCompare = /* #__PURE__ */ factory(name, dependencies, ({ type
 })
 
 export const createCompareNumber = /* #__PURE__ */ factory(name, ['typed', 'config'], ({ typed, config }) => {
-  return typed(name, { 'number, number': compareEpsilon(config.epsilon) })
+  return typed(name, { 'number, number': compareEpsilon(config) })
 })

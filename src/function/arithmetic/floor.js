@@ -102,7 +102,7 @@ export const createFloor = /* #__PURE__ */ factory(name, dependencies, ({ typed,
    * @param  {number | BigNumber | Array} [n=0]                            Number of decimals
    * @return {number | BigNumber | Fraction | Complex | Array | Matrix} Rounded value
    */
-  return typed('floor', extend({
+  return typed('floor', floorScalar, {
     'Array | Matrix': function (x) {
       // deep map collection, skip zeros since floor(0) = 0
       return deepMap(x, floorScalar, true)
@@ -121,9 +121,9 @@ export const createFloor = /* #__PURE__ */ factory(name, dependencies, ({ typed,
       return algorithmDs(x, y, floorScalar, false)
     },
 
-    'any, Array': function (x, y) {
+    'number | Complex | BigNumber | Fraction, Array': function (x, y) {
       // use matrix implementation
       return algorithmDs(matrix(y), x, floorScalar, true).valueOf()
     }
-  }, floorScalar.signatures))
+  })
 })

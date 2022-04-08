@@ -69,41 +69,36 @@ export const createDerivative = /* #__PURE__ */ factory(name, dependencies, ({
    *                         be simplified.
    * @return {ConstantNode | SymbolNode | ParenthesisNode | FunctionNode | OperatorNode}    The derivative of `expr`
    */
+  function deriv (expr, variable, options = { simplify: true }) {
+    const constNodes = {}
+    constTag(constNodes, expr, variable.name)
+    const res = _derivative(expr, constNodes)
+    return options.simplify ? simplify(res) : res
+  }
+
   const derivative = typed('derivative', {
-    'Node, SymbolNode, Object': function (expr, variable, options) {
-      const constNodes = {}
-      constTag(constNodes, expr, variable.name)
-      const res = _derivative(expr, constNodes)
-      return options.simplify ? simplify(res) : res
-    },
-    'Node, SymbolNode': function (expr, variable) {
-      return this(expr, variable, { simplify: true })
-    },
+    'Node, SymbolNode, Object': deriv,
+    'Node, SymbolNode': deriv,
+    'string, SymbolNode': (expr, variable) => deriv(parse(expr), variable),
+    'string, SymbolNode, Object':
+      (expr, variable, options) => deriv(parse(expr), variable, options),
+    'string, string': // can't call deriv directly because want error check
+    typed.referToSelf(self => (expr, variable) =>
+      self(parse(expr), parse(variable))),
+    'string, string, Object':
+      typed.referToSelf(self => (expr, variable, options) =>
+        self(parse(expr), parse(variable), options)),
+    'Node, string':
+      typed.referToSelf(self => (expr, variable) =>
+        deriv(expr, parse(variable))),
+    'Node, string, Object':
+      typed.referToSelf(self => (expr, variable, options) =>
+        deriv(expr, parse(variable), options))
+  })
 
-    'string, SymbolNode': function (expr, variable) {
-      return this(parse(expr), variable)
-    },
-    'string, SymbolNode, Object': function (expr, variable, options) {
-      return this(parse(expr), variable, options)
-    },
+  // TODO: replace the 8 signatures above with 4 as soon as typed-function supports optional arguments
 
-    'string, string': function (expr, variable) {
-      return this(parse(expr), parse(variable))
-    },
-    'string, string, Object': function (expr, variable, options) {
-      return this(parse(expr), parse(variable), options)
-    },
-
-    'Node, string': function (expr, variable) {
-      return this(expr, parse(variable))
-    },
-    'Node, string, Object': function (expr, variable, options) {
-      return this(expr, parse(variable), options)
-    }
-
-    // TODO: replace the 8 signatures above with 4 as soon as typed-function supports optional arguments
-
-    /* TODO: implement and test syntax with order of derivatives -> implement as an option {order: number}
+  /* TODO: implement and test syntax with order of derivatives -> implement as an option {order: number}
     'Node, SymbolNode, ConstantNode': function (expr, variable, {order}) {
       let res = expr
       for (let i = 0; i < order; i++) {
@@ -113,10 +108,7 @@ export const createDerivative = /* #__PURE__ */ factory(name, dependencies, ({
       }
       return res
     }
-    */
-  })
-
-  derivative._simplify = true
+  */
 
   derivative.toTex = function (deriv) {
     return _derivTex.apply(null, deriv.args)

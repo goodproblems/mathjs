@@ -29,20 +29,6 @@ export const createSinh = /* #__PURE__ */ factory(name, dependencies, ({ typed }
    */
   return typed(name, {
     number: sinhNumber,
-
-    Complex: function (x) {
-      return x.sinh()
-    },
-
-    BigNumber: function (x) {
-      return x.sinh()
-    },
-
-    Unit: function (x) {
-      if (!x.hasBase(x.constructor.BASE_UNITS.ANGLE)) {
-        throw new TypeError('Unit in function sinh is no angle')
-      }
-      return this(x.value)
-    }
+    'Complex | BigNumber': x => x.sinh()
   })
 })

@@ -20,7 +20,43 @@ export const createLcm = /* #__PURE__ */ factory(name, dependencies, ({ typed, m
   const algorithmSs0 = createAlgorithmSs0({ typed, equalScalar })
   const matrixAlgorithmSuite = createMatrixAlgorithmSuite({ typed, matrix })
 
-  const lcmScalar = typed(lcmNumber, _lcmBigNumber, _lcmFraction)
+  /**
+   * Calculate lcm for two BigNumbers
+   * @param {BigNumber} a
+   * @param {BigNumber} b
+   * @returns {BigNumber} Returns the least common multiple of a and b
+   * @private
+   */
+  function _lcmBigNumber (a, b) {
+    if (!a.isInt() || !b.isInt()) {
+      throw new Error('Parameters in function lcm must be integer numbers')
+    }
+
+    if (a.isZero()) {
+      return a
+    }
+    if (b.isZero()) {
+      return b
+    }
+
+    // https://en.wikipedia.org/wiki/Euclidean_algorithm
+    // evaluate lcm here inline to reduce overhead
+    const prod = a.times(b)
+    while (!b.isZero()) {
+      const t = b
+      b = a.mod(t)
+      a = t
+    }
+    return prod.div(a).abs()
+  }
+  _lcmBigNumber.signature = 'BigNumber, BigNumber'
+
+  function _lcmFraction (x, y) {
+    return x.lcm(y)
+  }
+  _lcmFraction.signature = 'Fraction, Fraction'
+
+  const lcmScalar = typed('lcmScalar', lcmNumber, _lcmBigNumber, _lcmFraction)
   const lcmTypes = 'number | BigNumber | Fraction | Matrix | Array'
   const lcmManySignature = {}
   lcmManySignature[`${lcmTypes}, ${lcmTypes}, ...${lcmTypes}`] =
@@ -61,46 +97,10 @@ export const createLcm = /* #__PURE__ */ factory(name, dependencies, ({ typed, m
    * @param {... number | BigNumber | Fraction | Array | Matrix} args  Two or more integer numbers
    * @return {number | BigNumber | Array | Matrix}                           The least common multiple
    */
-  return typed(name, extend(matrixAlgorithmSuite({
+  return typed(name, matrixAlgorithmSuite({
     elop: lcmScalar,
     SS: algorithmSS00,
     DS: algorithmDS0,
     Ss: algorithmSs0
-  }), lcmManySignature))
-
-  /**
-   * Calculate lcm for two BigNumbers
-   * @param {BigNumber} a
-   * @param {BigNumber} b
-   * @returns {BigNumber} Returns the least common multiple of a and b
-   * @private
-   */
-  function _lcmBigNumber (a, b) {
-    if (!a.isInt() || !b.isInt()) {
-      throw new Error('Parameters in function lcm must be integer numbers')
-    }
-
-    if (a.isZero()) {
-      return a
-    }
-    if (b.isZero()) {
-      return b
-    }
-
-    // https://en.wikipedia.org/wiki/Euclidean_algorithm
-    // evaluate lcm here inline to reduce overhead
-    const prod = a.times(b)
-    while (!b.isZero()) {
-      const t = b
-      b = a.mod(t)
-      a = t
-    }
-    return prod.div(a).abs()
-  }
-  _lcmBigNumber.signature = 'BigNumber, BigNumber'
-
-  function _lcmFraction (x, y) {
-    return x.lcm(y)
-  }
-  _lcmFraction.signature = 'Fraction, Fraction'
+  }), lcmManySignature)
 })

@@ -71,15 +71,15 @@ export const createSimplifyConstant = /* #__PURE__ */ factory(name, dependencies
    */
   const simplifyConstant = typed('simplifyConstant', {
     string: function (expr) {
-      return this(parse(expr), {})
+      return _ensureNode(foldFraction(parse(expr), {}))
     },
 
     'string, Object': function (expr, options) {
-      return this(parse(expr), options)
+      return _ensureNode(foldFraction(parse(expr), options))
     },
 
     Node: function (node) {
-      return this(node, {})
+      return _ensureNode(foldFraction(node, {}))
     },
 
     'Node, Object': function (expr, options) {

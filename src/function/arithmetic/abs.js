@@ -45,10 +45,10 @@ export const createAbs = /* #__PURE__ */ factory(name, dependencies, ({ typed })
       return x.abs()
     },
 
-    'Array | Matrix': function (x) {
+    'Array | Matrix': typed.referToSelf(self => x => {
       // deep map collection, skip zeros since abs(0) = 0
-      return deepMap(x, this, true)
-    },
+      return deepMap(x, self, true)
+    }),
 
     Unit: function (x) {
       return x.abs()

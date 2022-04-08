@@ -36,49 +36,47 @@ export const createTo = /* #__PURE__ */ factory(name, dependencies, ({ typed, ma
    *                                      or a unit without value.
    * @return {Unit | Array | Matrix} value with changed, fixed unit.
    */
-  return typed(name, {
-    'Unit, Unit | string': function (x, unit) {
-      return x.to(unit)
-    },
+  const unitTo = typed({'Unit, Unit | string': (x, unit) => x.to(unit)})
 
+  return typed(name, unitTo, {
     'Matrix, Matrix': function (x, y) {
       // SparseMatrix does not support Units
-      return algorithmDD(x, y, this)
+      return algorithmDD(x, y, unitTo)
     },
 
     'Array, Array': function (x, y) {
       // use matrix implementation
-      return this(matrix(x), matrix(y)).valueOf()
+      return algorithmDD(matrix(x), matrix(y), unitTo).valueOf()
     },
 
     'Array, Matrix': function (x, y) {
       // use matrix implementation
-      return this(matrix(x), y)
+      return algorithmDD(matrix(x), y, unitTo)
     },
 
     'Matrix, Array': function (x, y) {
       // use matrix implementation
-      return this(x, matrix(y))
+      return algorithmDD(x, matrix(y), unitTo)
     },
 
     'Matrix, any': function (x, y) {
       // SparseMatrix does not support Units
-      return algorithmDs(x, y, this, false)
+      return algorithmDs(x, y, unitTo, false)
     },
 
     'any, Matrix': function (x, y) {
       // SparseMatrix does not support Units
-      return algorithmDs(y, x, this, true)
+      return algorithmDs(y, x, unitTo, true)
     },
 
     'Array, any': function (x, y) {
       // use matrix implementation
-      return algorithmDs(matrix(x), y, this, false).valueOf()
+      return algorithmDs(matrix(x), y, unitTo, false).valueOf()
     },
 
     'any, Array': function (x, y) {
       // use matrix implementation
-      return algorithmDs(matrix(y), x, this, true).valueOf()
+      return algorithmDs(matrix(y), x, unitTo, true).valueOf()
     }
   })
 })

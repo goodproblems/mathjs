@@ -22,7 +22,7 @@ export const createBitOr = /* #__PURE__ */ factory(name, dependencies, ({ typed,
   const algorithmSs1 = createAlgorithmSs1({ typed, DenseMatrix })
   const matrixAlgorithmSuite = createMatrixAlgorithmSuite({ typed, matrix })
 
-  const bitOrScalar = typed(bitOrNumber, bitOrBigNumber)
+  const bitOrScalar = typed('bitOrScalar', bitOrNumber, bitOrBigNumber)
 
   /**
    * Bitwise OR two values, `x | y`.

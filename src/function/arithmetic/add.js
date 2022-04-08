@@ -57,22 +57,26 @@ export const createAdd = /* #__PURE__ */ factory(name, dependencies, ({ typed, m
    * @param  {number | BigNumber | Fraction | Complex | Unit | Array | Matrix} y Second value to add
    * @return {number | BigNumber | Fraction | Complex | Unit | Array | Matrix} Sum of `x` and `y`
    */
-  return typed(
-    name,
-    extend(
-      matrixAlgorithmSuite({
-        elop: addScalar,
-        SS: algorithmSS10,
-        DS: algorithmDS1,
-        Ss: algorithmSs1
-      }), {
-        'any, any, ...any': typed.referToSelf(self => (x, y, rest) => {
-          let result = this(x, y)
-          for (let i = 0; i < rest.length; i++) {
-            result = this(result, rest[i])
-          }
-          
-          return result
-        })
-      }))
+  return typed(name,
+    matrixAlgorithmSuite({
+      elop: addScalar,
+      SS: algorithmSS10,
+      DS: algorithmDS1,
+      Ss: algorithmSs1
+    }),
+    {
+      'any, any': addScalar, // does nothing for valid results, but allows
+      // a better error message for two unrecognized arguments, since otherwise
+      // that case falls down to the below and produces a "too few arguments"
+      // error, which is not helpful
+
+      'any, any, ...any': typed.referToSelf(self => (x, y, rest) => {
+        let result = self(x, y)
+        for (let i = 0; i < rest.length; i++) {
+          result = self(result, rest[i])
+        }
+        
+        return result
+      })
+    })
 })

@@ -51,17 +51,17 @@ export const createCompareText = /* #__PURE__ */ factory(name, dependencies, ({ 
 
     'Array, Array': function (x, y) {
       // use matrix implementation
-      return this(matrix(x), matrix(y)).valueOf()
+      return algorithmDD(matrix(x), matrix(y), _compareText).valueOf()
     },
 
     'Array, Matrix': function (x, y) {
       // use matrix implementation
-      return this(matrix(x), y)
+      return algorithmDD(matrix(x), y, _compareText)
     },
 
     'Matrix, Array': function (x, y) {
       // use matrix implementation
-      return this(x, matrix(y))
+      return algorithmDD(x, matrix(y), _compareText)
     },
 
     'DenseMatrix, any': function (x, y) {

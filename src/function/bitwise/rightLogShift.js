@@ -54,55 +54,55 @@ export const createRightLogShift = /* #__PURE__ */ factory(name, dependencies, (
 
   // TODO: implement BigNumber support for rightLogShift
   
-  return typed(
-    name,
-    extend(
-      matrixAlgorithmSuite({
-        elop: rightLogShiftNumber,
-        SS: algorithmS1S0,
-        DS: algorithmDS1,
-        SD: algorithmDS0
-      }), { // No scalar methods above; special code below
-        'SparseMatrix, number': function (x, y) {
-          // check scalar
-          if (equalScalar(y, 0)) {
-            return x.clone()
-          }
-          return algorithmSs0(x, y, this, false)
-        },
+  return typed(name,
+    rightLogShiftNumber,    
+    matrixAlgorithmSuite({
+      elop: rightLogShiftNumber,
+      SS: algorithmS1S0,
+      DS: algorithmDS1,
+      SD: algorithmDS0
+    }),
+    { // No scalar methods above; special code below
+      'SparseMatrix, number': function (x, y) {
+        // check scalar
+        if (equalScalar(y, 0)) {
+          return x.clone()
+        }
+        return algorithmSs0(x, y, rightLogShiftNumber, false)
+      },
 
-        'DenseMatrix, number': function (x, y) {
-          // check scalar
-          if (equalScalar(y, 0)) {
-            return x.clone()
-          }
-          return algorithmDs(x, y, this, false)
-        },
+      'DenseMatrix, number': function (x, y) {
+        // check scalar
+        if (equalScalar(y, 0)) {
+          return x.clone()
+        }
+        return algorithmDs(x, y, rightLogShiftNumber, false)
+      },
 
-        'number, SparseMatrix': function (x, y) {
-          // check scalar
-          if (equalScalar(x, 0)) {
-            return zeros(y.size(), y.storage())
-          }
-          return algorithmSs1(y, x, this, true)
-        },
+      'number, SparseMatrix': function (x, y) {
+        // check scalar
+        if (equalScalar(x, 0)) {
+          return zeros(y.size(), y.storage())
+        }
+        return algorithmSs1(y, x, rightLogShiftNumber, true)
+      },
 
-        'number, DenseMatrix': function (x, y) {
-          // check scalar
-          if (equalScalar(x, 0)) {
-            return zeros(y.size(), y.storage())
-          }
-          return algorithmDs(y, x, this, true)
-        },
+      'number, DenseMatrix': function (x, y) {
+        // check scalar
+        if (equalScalar(x, 0)) {
+          return zeros(y.size(), y.storage())
+        }
+        return algorithmDs(y, x, rightLogShiftNumber, true)
+      },
 
-        'Array, number': typed.referToSelf(self => (x, y) => {
-          // use matrix implementation
-          return self(matrix(x), y).valueOf()
-        }),
+      'Array, number': typed.referToSelf(self => (x, y) => {
+        // use matrix implementation
+        return self(matrix(x), y).valueOf()
+      }),
 
-        'number, Array': typed.referToSelf(self => (x, y) => {
-          // use matrix implementation
-          return self(x, matrix(y)).valueOf()
-        })
-      }))
+      'number, Array': typed.referToSelf(self => (x, y) => {
+        // use matrix implementation
+        return self(x, matrix(y)).valueOf()
+      })
+    })
 })

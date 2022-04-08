@@ -623,38 +623,45 @@ export const createUnitClass = /* #__PURE__ */ factory(name, dependencies, ({
   }
 
   /**
-   * Multiply this unit with another one
+   * Multiply this unit with another one or with a number
    * @memberof Unit
    * @param {Unit} other
    * @return {Unit} product of this unit and the other unit
    */
   Unit.prototype.multiply = function (other) {
     const res = this.clone()
-
+    const otherIsUnit = other.constructor.prototype.isUnit === true
+    
     for (let i = 0; i < BASE_DIMENSIONS.length; i++) {
       // Dimensions arrays may be of different lengths. Default to 0.
-      res.dimensions[i] = (this.dimensions[i] || 0) + (other.dimensions[i] || 0)
+      res.dimensions[i] = (this.dimensions[i] || 0) +
+        ((otherIsUnit && other.dimensions[i]) || 0)
     }
 
-    // Append other's units list onto res
-    for (let i = 0; i < other.units.length; i++) {
-      // Make a shallow copy of every unit
-      const inverted = {
-        ...other.units[i]
+    if (otherIsUnit) {
+      // Append other's units list onto res
+      for (let i = 0; i < other.units.length; i++) {
+        // Make a shallow copy of every unit
+        const inverted = {
+          ...other.units[i]
+        }
+        res.units.push(inverted)
       }
-      res.units.push(inverted)
     }
 
     // If at least one operand has a value, then the result should also have a value
-    if (this.value !== null || other.value !== null) {
+    let valOther = otherIsUnit ? other.value : other
+    if (this.value !== null || valOther !== null) {
       const valThis = this.value === null ? this._normalize(1) : this.value
-      const valOther = other.value === null ? other._normalize(1) : other.value
+      valOther = (valOther === null ? other._normalize(1) : valOther)
       res.value = multiplyScalar(valThis, valOther)
     } else {
       res.value = null
     }
 
-    res.skipAutomaticSimplification = false
+    if (otherIsUnit) {
+      res.skipAutomaticSimplification = false
+    }
 
     return getNumericIfUnitless(res)
   }

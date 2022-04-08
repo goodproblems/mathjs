@@ -21,10 +21,7 @@ export const createBitXor = /* #__PURE__ */ factory(name, dependencies, ({ typed
   const algorithmSsf = createAlgorithmSsf({ typed, DenseMatrix })
   const matrixAlgorithmSuite = createMatrixAlgorithmSuite({ typed, matrix })
 
-  const bitXorScalar = typed({
-    'number, number': bitXorNumber,
-    'BigNumber, BigNumber': bigBitXor
-  })
+  const bitXorScalar = typed('bitXorScalar', bitXorNumber, bigBitXor)
     
   /**
    * Bitwise XOR two values, `x ^ y`.

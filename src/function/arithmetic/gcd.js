@@ -22,7 +22,35 @@ export const createGcd = /* #__PURE__ */ factory(name, dependencies, ({ typed, m
   const algorithmSs1 = createAlgorithmSs1({ typed, DenseMatrix })
   const matrixAlgorithmSuite = createMatrixAlgorithmSuite({ typed, matrix })
 
-  const gcdScalar = typed(gcdNumber, _gcdBigNumber, _gcdFraction)
+  /**
+   * Calculate gcd for BigNumbers
+   * @param {BigNumber} a
+   * @param {BigNumber} b
+   * @returns {BigNumber} Returns greatest common denominator of a and b
+   * @private
+   */
+  function _gcdBigNumber (a, b) {
+    if (!a.isInt() || !b.isInt()) {
+      throw new Error('Parameters in function gcd must be integer numbers')
+    }
+
+    // https://en.wikipedia.org/wiki/Euclidean_algorithm
+    const zero = new BigNumber(0)
+    while (!b.isZero()) {
+      const r = a.mod(b)
+      a = b
+      b = r
+    }
+    return a.lt(zero) ? a.neg() : a
+  }
+  _gcdBigNumber.signature = 'BigNumber, BigNumber'
+
+  function _gcdFraction (x, y) {
+    return x.gcd(y)
+  }
+  _gcdFraction.signature = 'Fraction, Fraction'
+
+  const gcdScalar = typed('gcdScalar', gcdNumber, _gcdBigNumber, _gcdFraction)
   const gcdTypes = 'number | BigNumber | Fraction | Matrix | Array'
   const gcdManySignature = {}
   gcdManySignature[`${gcdTypes}, ${gcdTypes}, ...${gcdTypes}`] =
@@ -59,38 +87,11 @@ export const createGcd = /* #__PURE__ */ factory(name, dependencies, ({ typed, m
    * @param {... number | BigNumber | Fraction | Array | Matrix} args  Two or more integer numbers
    * @return {number | BigNumber | Fraction | Array | Matrix}                           The greatest common divisor
    */
-  return typed(name, extend(matrixAlgorithmSuite({
+  return typed(name, matrixAlgorithmSuite({
     elop: gcdScalar,
     SS: algorithmSS10,
     DS: algorithmDS1,
     Ss: algorithmSs1,
-  }), gcdManySignature))
+  }), gcdManySignature)
 
-  /**
-   * Calculate gcd for BigNumbers
-   * @param {BigNumber} a
-   * @param {BigNumber} b
-   * @returns {BigNumber} Returns greatest common denominator of a and b
-   * @private
-   */
-  function _gcdBigNumber (a, b) {
-    if (!a.isInt() || !b.isInt()) {
-      throw new Error('Parameters in function gcd must be integer numbers')
-    }
-
-    // https://en.wikipedia.org/wiki/Euclidean_algorithm
-    const zero = new BigNumber(0)
-    while (!b.isZero()) {
-      const r = a.mod(b)
-      a = b
-      b = r
-    }
-    return a.lt(zero) ? a.neg() : a
-  }
-  _gcdBigNumber.signature = 'BigNumber, BigNumber'
-
-  function _gcdFraction (x, y) {
-    return x.gcd(y)
-  }
-  _gcdFraction.signature = 'Fraction, Fraction'
 })

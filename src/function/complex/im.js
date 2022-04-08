@@ -49,8 +49,6 @@ export const createIm = /* #__PURE__ */ factory(name, dependencies, ({ typed }) 
       return x.im
     },
 
-    'Array | Matrix': function (x) {
-      return deepMap(x, this)
-    }
+    'Array | Matrix': typed.referToSelf(self => m => deepMap(m, self))
   })
 })
