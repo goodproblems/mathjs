@@ -177,8 +177,9 @@ export const createSimplify = /* #__PURE__ */ factory(name, dependencies, (
     { from: 'string', to: 'Node', convert: s => parse(s) }
   const tempObjectMap =
     { from: 'Object', to: 'Map', convert: o => createMap(o) }
-  typed.addConversions([tempStringNode, tempObjectMap])
-
+//  typed.addConversions([tempStringNode, tempObjectMap])
+  typed.conversions.push(tempStringNode)
+  typed.conversions.push(tempObjectMap)
   const simplify = typed('simplify', {
     Node: typed.referToSelf(self => expr => {
       return self(expr, self.rules)
@@ -199,8 +200,10 @@ export const createSimplify = /* #__PURE__ */ factory(name, dependencies, (
     'Node, Array, Map, Object': _simplify
   })
 
-  typed.removeConversion(tempStringNode)
-  typed.removeConversion(tempObjectMap)
+//  typed.removeConversion(tempStringNode)
+//  typed.removeConversion(tempObjectMap)
+  typed.conversions.pop()
+  typed.conversions.pop()
 
   function _simplify (expr, rules, scope = createEmptyMap(), options = {}) {
     const debug = options.consoleDebug
