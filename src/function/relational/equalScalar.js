@@ -37,12 +37,12 @@ export const createEqualScalar = /* #__PURE__ */ factory(name, dependencies, ({ 
       return complexEquals(x, y, config.epsilon)
     },
 
-    'Unit, Unit': function (x, y) {
+    'Unit, Unit': typed.referToSelf(self => (x, y) => {
       if (!x.equalBase(y)) {
         throw new Error('Cannot compare units with different base')
       }
-      return this(x.value, y.value)
-    }
+      return self(x.value, y.value)
+    })
   })
 })
 

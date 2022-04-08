@@ -17,9 +17,9 @@ const dependencies = [
   'DenseMatrix'
 ]
 
-function smallerEqEpsilon (eps) {
+function smallerEqEpsilon (conf) {
   return function (x, y) {
-    return x <= y || nearlyEqual(x, y, eps)
+    return x <= y || nearlyEqual(x, y, conf.epsilon)
   }
 }
 
@@ -31,7 +31,7 @@ export const createSmallerEq = /* #__PURE__ */ factory(name, dependencies, ({ ty
 
   const smallerEqScalar = typed({
     'boolean, boolean': (x, y) => x <= y,
-    'number, number': smallerEqEpsilon(config.epsilon),
+    'number, number': smallerEqEpsilon(config),
     'BigNumber, BigNumber': function (x, y) {
       return x.lte(y) || bigNearlyEqual(x, y, config.epsilon)
     },
@@ -85,5 +85,5 @@ export const createSmallerEq = /* #__PURE__ */ factory(name, dependencies, ({ ty
 })
 
 export const createSmallerEqNumber = /* #__PURE__ */ factory(name, ['typed', 'config'], ({ typed, config }) => {
-  return typed(name, { 'number, number': smallerEqEpsilon(config.epsilon) })
+  return typed(name, { 'number, number': smallerEqEpsilon(config) })
 })

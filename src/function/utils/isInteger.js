@@ -46,8 +46,6 @@ export const createIsInteger = /* #__PURE__ */ factory(name, dependencies, ({ ty
       return x.d === 1 && isFinite(x.n)
     },
 
-    'Array | Matrix': function (x) {
-      return deepMap(x, this)
-    }
+    'Array | Matrix': typed.referToSelf(self => m => deepMap(m, self))
   })
 })

@@ -34,7 +34,7 @@ export const createRound = /* #__PURE__ */ factory(name, dependencies, ({ typed,
   const algorithmSsf = createAlgorithmSsf({ typed, DenseMatrix })
   const algorithmDs = createAlgorithmDs({ typed })
 
-  const roundScalar = typed(extend({
+  const roundScalar = typed(roundNumberSignatures, {
     Complex: function (x) {
       return x.round()
     },
@@ -76,7 +76,7 @@ export const createRound = /* #__PURE__ */ factory(name, dependencies, ({ typed,
       if (n % 1) { throw new TypeError(NO_INT) }
       return x.round(n)
     }
-  }, roundNumberSignatures))
+  })
     
   /**
    * Round a value towards the nearest integer.
@@ -113,7 +113,7 @@ export const createRound = /* #__PURE__ */ factory(name, dependencies, ({ typed,
    * @param  {number | BigNumber | Array} [n=0]                            Number of decimals
    * @return {number | BigNumber | Fraction | Complex | Array | Matrix} Rounded value
    */
-  return typed(name, extend({
+  return typed(name, roundScalar, {
     'Array | Matrix': function (x) {
       // deep map collection, skip zeros since round(0) = 0
       return deepMap(x, roundScalar, true)

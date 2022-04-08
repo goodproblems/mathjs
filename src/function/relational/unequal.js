@@ -80,14 +80,13 @@ export const createUnequal = /* #__PURE__ */ factory(name, dependencies, ({ type
    * @param  {number | BigNumber | Fraction | boolean | Complex | Unit | string | Array | Matrix | undefined} y Second value to compare
    * @return {boolean | Array | Matrix} Returns true when the compared values are unequal, else returns false
    */
-  return typed('unequal', extend(
-    { 'any, any': baseUnequal(equalScalar) },
+  return typed('unequal', { 'any, any': baseUnequal(equalScalar) },
     matrixAlgorithmSuite({
       elop: _unequal,
       SS: algorithmSSff,
       DS: algorithmDSf,
       Ss: algorithmSsf
-    })))
+    }))
 })
 
 export const createUnequalNumber = factory(name, ['typed', 'equalScalar'], ({ typed, equalScalar }) => {

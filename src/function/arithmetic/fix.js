@@ -83,7 +83,7 @@ export const createFix = /* #__PURE__ */ factory(name, dependencies, ({ typed, C
    * @param  {number | BigNumber | Array} [n=0]                             Number of decimals
    * @return {number | BigNumber | Fraction | Complex | Array | Matrix}     Rounded value
    */
-  return typed('fix', extend({
+  return typed('fix', fixScalar, {
     'Array | Matrix': function (x) {
       // deep map collection, skip zeros since fix(0) = 0
       return deepMap(x, fixScalar, true)
@@ -98,5 +98,5 @@ export const createFix = /* #__PURE__ */ factory(name, dependencies, ({ typed, C
       // use matrix implementation
       return algorithmDs(matrix(y), x, fixScalar, true).valueOf()
     }
-  }, fixScalar.signatures)
+  })
 })

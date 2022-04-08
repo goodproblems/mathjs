@@ -128,9 +128,7 @@ export const createNumber = /* #__PURE__ */ factory(name, dependencies, ({ typed
       return unit.toNumber(valuelessUnit)
     },
 
-    'Array | Matrix': function (x) {
-      return deepMap(x, this)
-    }
+    'Array | Matrix': typed.referToSelf(self => m => deepMap(m, self))
   })
 
   // reviver function to parse a JSON object like:

@@ -40,7 +40,7 @@ export const createLog = /* #__PURE__ */ factory(name, dependencies, ({ typed, c
    * @return {number | BigNumber | Complex}
    *            Returns the logarithm of `x`
    */
-  return typed(name, {
+  const log_e = typed({
     number: function (x) {
       if (x >= 0 || config.predictable) {
         return logNumber(x)
@@ -61,11 +61,13 @@ export const createLog = /* #__PURE__ */ factory(name, dependencies, ({ typed, c
         // downgrade to number, return Complex valued result
         return new Complex(x.toNumber(), 0).log()
       }
-    },
+    }
+  })
 
+  return typed(name, log_e, {
     'any, any': function (x, base) {
       // calculate logarithm for a specified base, log(x, base)
-      return divideScalar(this(x), this(base))
+      return divideScalar(log_e(x), log_e(base))
     }
   })
 })

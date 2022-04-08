@@ -43,8 +43,6 @@ export const createConj = /* #__PURE__ */ factory(name, dependencies, ({ typed }
       return x.conjugate()
     },
 
-    'Array | Matrix': function (x) {
-      return deepMap(x, this)
-    }
+    'Array | Matrix': typed.referToSelf(self => m => deepMap(m, self))
   })
 })

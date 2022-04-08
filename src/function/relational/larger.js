@@ -16,9 +16,9 @@ const dependencies = [
   'DenseMatrix'
 ]
 
-Function largerEpsilon (eps) {
+function largerEpsilon (conf) {
   return function (x, y) {
-    return x > y && !nearlyEqual(x, y, eps)
+    return x > y && !nearlyEqual(x, y, conf.epsilon)
   }
 }
 
@@ -30,7 +30,7 @@ export const createLarger = /* #__PURE__ */ factory(name, dependencies, ({ typed
 
   const largerScalar = typed({
     'boolean, boolean': (x, y) => x > y,
-    'number, number': largerEpsilon(config.epsilon),
+    'number, number': largerEpsilon(config),
     'BigNumber, BigNumber': function (x, y) {
       return x.gt(y) && !bigNearlyEqual(x, y, config.epsilon)
     },
@@ -88,5 +88,5 @@ export const createLarger = /* #__PURE__ */ factory(name, dependencies, ({ typed
 })
 
 export const createLargerNumber = /* #__PURE__ */ factory(name, ['typed', 'config'], ({ typed, config }) => {
-  return typed(name, { 'number, number': largerEpsilon(config.epsilon) })
+  return typed(name, { 'number, number': largerEpsilon(config) })
 })

@@ -75,7 +75,7 @@ export const createStd = /* #__PURE__ */ factory(name, dependencies, ({ typed, m
     }
   })
 
-  function _std (array, normalization) {
+  function _std (array) {
     if (array.length === 0) {
       throw new SyntaxError('Function std requires one or more parameters (0 provided)')
     }

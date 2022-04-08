@@ -1,6 +1,5 @@
 import { factory } from '../../utils/factory.js'
 import { isMatrix } from '../../utils/is.js'
-import { extend } from '../../utils/object.js'
 import { arraySize } from '../../utils/array.js'
 import { createAlgorithmSs0 } from '../../type/matrix/utils/algorithmSs0.js'
 import { createAlgorithmDs } from '../../type/matrix/utils/algorithmDs.js'
@@ -794,9 +793,7 @@ export const createMultiply = /* #__PURE__ */ factory(name, dependencies, ({ typ
    * @param  {number | BigNumber | Fraction | Complex | Unit | Array | Matrix} y Second value to multiply
    * @return {number | BigNumber | Fraction | Complex | Unit | Array | Matrix} Multiplication of `x` and `y`
    */
-  return typed(name, extend({
-    // we extend the signatures of multiplyScalar with signatures dealing with matrices
-
+  return typed(name, multiplyScalar, {
     'Array, Array': typed.referTo('Matrix, Matrix', multMM => (x, y) => {
       // check dimensions
       _validateMatrixDimensions(arraySize(x), arraySize(y))
@@ -839,7 +836,7 @@ export const createMultiply = /* #__PURE__ */ factory(name, dependencies, ({ typ
       return multMM(x, matrix(y))
     }),
     
-    'Array, Matrix': typed.referTo('Matrix, Matrix', multMM => (x, y) {
+    'Array, Matrix': typed.referTo('Matrix, Matrix', multMM => (x, y) => {
       // use Matrix * Matrix implementation
       return multMM(matrix(x, y.storage()), y)
     }),
@@ -880,6 +877,6 @@ export const createMultiply = /* #__PURE__ */ factory(name, dependencies, ({ typ
       }
 
       return result
-    }
-  }, multiplyScalar.signatures))
+    })
+  })
 })

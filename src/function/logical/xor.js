@@ -32,7 +32,7 @@ export const createXor = /* #__PURE__ */ factory(name, dependencies, ({ typed, m
     },
 
     'Unit, Unit': typed.referToSelf(self => (x, y) => {
-      return this(x.value || 0, y.value || 0)
+      return self(x.value || 0, y.value || 0)
     })
   })
     
@@ -69,5 +69,5 @@ export const createXor = /* #__PURE__ */ factory(name, dependencies, ({ typed, m
     SS: algorithmSSff,
     DS: algorithmDSf,
     Ss: algorithmSsf
-  })
+  }))
 })

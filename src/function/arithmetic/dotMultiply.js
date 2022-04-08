@@ -2,7 +2,9 @@ import { factory } from '../../utils/factory.js'
 import { createAlgorithmDS0 } from '../../type/matrix/utils/algorithmDS0.js'
 import { createAlgorithmSfS0 } from '../../type/matrix/utils/algorithmSfS0.js'
 import { createAlgorithmSs0 } from '../../type/matrix/utils/algorithmSs0.js'
-
+import {
+  createMatrixAlgorithmSuite
+} from '../../type/matrix/utils/matrixAlgorithmSuite.js'
 
 const name = 'dotMultiply'
 const dependencies = [

@@ -44,16 +44,16 @@ export const createUnaryMinus = /* #__PURE__ */ factory(name, dependencies, ({ t
       return x.neg()
     },
 
-    Unit: function (x) {
+    Unit: typed.referToSelf(self => x => {
       const res = x.clone()
-      res.value = this(x.value)
+      res.value = self(x.value)
       return res
-    },
+    }),
 
-    'Array | Matrix': function (x) {
+    'Array | Matrix': typed.referToSelf(self => x => {
       // deep map collection, skip zeros since unaryMinus(0) = 0
-      return deepMap(x, this, true)
-    }
+      return deepMap(x, self, true)
+    })
 
     // TODO: add support for string
   })

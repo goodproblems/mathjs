@@ -42,12 +42,12 @@ export const createNot = /* #__PURE__ */ factory(name, dependencies, ({ typed })
       return x.isZero() || x.isNaN()
     },
 
-    Unit: function (x) {
-      return x.value !== null ? this(x.value) : true
-    },
+    Unit: typed.referToSelf(self => x => {
+      return x.value !== null ? self(x.value) : true
+    }),
 
-    'Array | Matrix': function (x) {
-      return deepMap(x, this)
-    }
+    'Array | Matrix': typed.referToSelf(self => x => {
+      return deepMap(x, self)
+    })
   })
 })

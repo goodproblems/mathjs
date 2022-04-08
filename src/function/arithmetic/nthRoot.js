@@ -37,12 +37,15 @@ export const createNthRoot = /* #__PURE__ */ factory(name, dependencies, ({ type
     BigNumber: function (x) {
       return _bigNthRoot(x, new BigNumber(2))
     },
+
     Complex: function (x) {
       throw new Error(complexErr)
     },
+
     'Complex, number': function (x, y) {
       throw new Error(complexErr)
     },
+
     'BigNumber, BigNumber': _bigNthRoot
   })
     
@@ -75,8 +78,8 @@ export const createNthRoot = /* #__PURE__ */ factory(name, dependencies, ({ type
    * @param {number | BigNumber} [root=2]    The root.
    * @return {number | Complex | Array | Matrix} Returns the nth root of `a`
    */
-  return typed(name, extend({
-    'Array | Matrix': typed.referToSelf(self => (x) => self(x, 2)),
+  return typed(name, nthRootScalar, {
+    'Array | Matrix': typed.referToSelf(self => x => self(x, 2)),
 
     'SparseMatrix, SparseMatrix': function (x, y) {
       // density must be one (no zeros in matrix)
@@ -119,7 +122,7 @@ export const createNthRoot = /* #__PURE__ */ factory(name, dependencies, ({ type
       return self(matrix(x), y)
     }),
 
-    'Matrix, Array': typed.referToSelf(selfr => (x, y) => {
+    'Matrix, Array': typed.referToSelf(self => (x, y) => {
       // use matrix implementation
       return self(x, matrix(y))
     }),
@@ -147,16 +150,16 @@ export const createNthRoot = /* #__PURE__ */ factory(name, dependencies, ({ type
       return algorithmDs(y, x, nthRootScalar, true)
     },
 
-    'Array, number | BigNumber': typed.referToSelf(self => (x, y) {
+    'Array, number | BigNumber': typed.referToSelf(self => (x, y) => {
       // use matrix implementation
       return self(matrix(x), y).valueOf()
     }),
 
-    'number | BigNumber, Array': typed.referToSelf(self => (x, y) {
+    'number | BigNumber, Array': typed.referToSelf(self => (x, y) => {
       // use matrix implementation
       return self(x, matrix(y)).valueOf()
     })
-  }, nthRootScalar.signatures))
+  })
 
   /**
    * Calculate the nth root of a for BigNumbers, solve x^root == a

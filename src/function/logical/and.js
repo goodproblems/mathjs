@@ -68,58 +68,57 @@ export const createAnd = /* #__PURE__ */ factory(name, dependencies, ({ typed, m
    * @return {boolean | Array | Matrix}
    *            Returns true when both inputs are defined with a nonzero/nonempty value.
    */
-  return typed(
-    name,
-    extend(
-      matrixAlgorithmSuite({
-        elop: andScalar,
-        SS: algorithmSS00,
-        DS: algorithmDS0
-      }), { // No scalar methods above; special code below
-        'SparseMatrix, any': function (x, y) {
-          // check scalar
-          if (not(y)) {
-            // return zero matrix
-            return zeros(x.size(), x.storage())
-          }
-          return algorithmSs0(x, y, this, false)
-        },
+  return typed(name,
+    matrixAlgorithmSuite({
+      elop: andScalar,
+      SS: algorithmSS00,
+      DS: algorithmDS0
+    }),
+    { // No scalar methods above; special code below
+      'SparseMatrix, any': function (x, y) {
+        // check scalar
+        if (not(y)) {
+          // return zero matrix
+          return zeros(x.size(), x.storage())
+        }
+        return algorithmSs0(x, y, andScalar, false)
+      },
 
-        'DenseMatrix, any': function (x, y) {
-          // check scalar
-          if (not(y)) {
-            // return zero matrix
-            return zeros(x.size(), x.storage())
-          }
-          return algorithmDs(x, y, this, false)
-        },
+      'DenseMatrix, any': function (x, y) {
+        // check scalar
+        if (not(y)) {
+          // return zero matrix
+          return zeros(x.size(), x.storage())
+        }
+        return algorithmDs(x, y, andScalar, false)
+      },
 
-        'any, SparseMatrix': function (x, y) {
-          // check scalar
-          if (not(x)) {
-            // return zero matrix
-            return zeros(x.size(), x.storage())
-          }
-          return algorithmSs0(y, x, this, true)
-        },
+      'any, SparseMatrix': function (x, y) {
+        // check scalar
+        if (not(x)) {
+          // return zero matrix
+          return zeros(x.size(), x.storage())
+        }
+        return algorithmSs0(y, x, andScalar, true)
+      },
 
-        'any, DenseMatrix': function (x, y) {
-          // check scalar
-          if (not(x)) {
-            // return zero matrix
-            return zeros(x.size(), x.storage())
-          }
-          return algorithmDs(y, x, this, true)
-        },
+      'any, DenseMatrix': function (x, y) {
+        // check scalar
+        if (not(x)) {
+          // return zero matrix
+          return zeros(x.size(), x.storage())
+        }
+        return algorithmDs(y, x, andScalar, true)
+      },
 
-        'Array, any': typed.referTo('DenseMatrix, any', andDs => (x, y) => {
-          // use matrix implementation
-          return andDs(matrix(x), y).valueOf()
-        }),
+      'Array, any': typed.referTo('DenseMatrix, any', andDs => (x, y) => {
+        // use matrix implementation
+        return andDs(matrix(x), y).valueOf()
+      }),
 
-        'any, Array': typed.referTo('any, DenseMatrix', andsD => (x, y) => {
-          // use matrix implementation
-          return andsD(x, matrix(y)).valueOf()
-        })
-      }))
+      'any, Array': typed.referTo('any, DenseMatrix', andsD => (x, y) => {
+        // use matrix implementation
+        return andsD(x, matrix(y)).valueOf()
+      })
+    })
 })

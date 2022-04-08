@@ -1,5 +1,6 @@
 import { factory } from '../../utils/factory.js'
 import { flatten } from '../../utils/array.js'
+import { isComplex } from '../../utils/is.js'
 
 const name = 'hypot'
 const dependencies = [
@@ -43,15 +44,9 @@ export const createHypot = /* #__PURE__ */ factory(name, dependencies, ({ typed,
    * @return {number | BigNumber} Returns the hypothenusa of the input values.
    */
   return typed(name, {
-    '... number | BigNumber': _hypot,
-
-    Array: function (x) {
-      return this.apply(this, flatten(x))
-    },
-
-    Matrix: function (x) {
-      return this.apply(this, flatten(x.toArray()))
-    }
+    '... number | BigNumber | Fraction': _hypot,
+    Array: a => _hypot(flatten(a)),
+    Matrix: m => _hypot(flatten(m.toArray()))
   })
 
   /**
@@ -67,6 +62,11 @@ export const createHypot = /* #__PURE__ */ factory(name, dependencies, ({ typed,
     let largest = 0
 
     for (let i = 0; i < args.length; i++) {
+      if (isComplex(args[i])) {
+        throw new TypeError(
+          'Unexpected type of argument in function hypot ' +
+          '(expected: real, actual: Complex)')
+      }
       const value = abs(args[i])
       if (smaller(largest, value)) {
         result = multiplyScalar(result,

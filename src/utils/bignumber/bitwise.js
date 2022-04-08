@@ -425,4 +425,4 @@ export function rightArithShiftBigNumber (x, y) {
   }
   return x.div(new BigNumber(2).pow(y)).floor()
 }
-rightArithShift.signature = b2
+rightArithShiftBigNumber.signature = b2

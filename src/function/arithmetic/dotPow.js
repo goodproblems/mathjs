@@ -46,11 +46,13 @@ export const createDotPow = /* #__PURE__ */ factory(name, dependencies, ({ typed
    * @param  {number | BigNumber | Complex | Unit | Array | Matrix} y  The exponent
    * @return {number | BigNumber | Complex | Unit | Array | Matrix}                     The value of `x` to the power `y`
    */
-  return typed(name, extend({ 'any, any': pow }, matrixAlgorithmSuite({
-    elop: (x, y) => pow(x, y) // pow has matrix signatures we don't want
-    SS: algorithmSSff,
-    DS: algorithmDSf,
-    Ss: algorithmSs0,
-    sS: algorithmSsf,
-  })))
+  return typed(name,
+    { 'any, any': pow },
+    matrixAlgorithmSuite({
+      elop: (x, y) => pow(x, y), // pow has matrix signatures we don't want
+      SS: algorithmSSff,
+      DS: algorithmDSf,
+      Ss: algorithmSs0,
+      sS: algorithmSsf,
+    }))
 })

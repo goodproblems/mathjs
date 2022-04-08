@@ -1,3 +1,4 @@
+import { deepMap } from '../../utils/collection.js'
 import { factory } from '../../utils/factory.js'
 
 const name = 'hasNumericValue'
@@ -34,10 +35,15 @@ export const createHasNumericValue = /* #__PURE__ */ factory(name, dependencies,
    *                    Throws an error in case of unknown types.
    */
   return typed(name, {
+    'number|BigNumber|Fraction|boolean': () => true,
+    
     string: function (x) {
       return x.trim().length > 0 && !isNaN(Number(x))
     },
-    any: function (x) {
+
+    'Array | Matrix': typed.referToSelf(self => m => deepMap(m, self)),
+
+    any: function (x) { // in case we missed anything
       return isNumeric(x)
     }
   })

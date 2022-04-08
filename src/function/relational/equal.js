@@ -76,16 +76,15 @@ export const createEqual = /* #__PURE__ */ factory(name, dependencies, ({ typed,
    * @param  {number | BigNumber | boolean | Complex | Unit | string | Array | Matrix} y Second value to compare
    * @return {boolean | Array | Matrix} Returns true when the compared values are equal, else returns false
    */
-  return typed(name, extend(
-    { 'any, any': baseEqual(equalScalar) },
+  return typed(name, { 'any, any': baseEqual(equalScalar) },
     matrixAlgorithmSuite({
       elop: equalScalar,
       SS: algorithmSSff,
       DS: algorithmDSf,
       Ss: algorithmSsf
-    })))
+    }))
 })      
 
 export const createEqualNumber = factory(name, ['typed', 'equalScalar'], ({ typed, equalScalar }) => {
-  return typed(name, { 'any, any': baseUnequal(equalScalar) })
+  return typed(name, { 'any, any': baseEqual(equalScalar) })
 })

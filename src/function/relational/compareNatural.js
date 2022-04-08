@@ -80,7 +80,7 @@ export const createCompareNatural = /* #__PURE__ */ factory(name, dependencies, 
    *                  1 when x > y, -1 when x < y, and 0 when x == y.
    */
   return typed(name, {
-    'any, any': function (x, y) {
+    'any, any': typed.referToSelf(self => (x, y) => {
       const typeX = typeOf(x)
       const typeY = typeOf(y)
       let c
@@ -100,7 +100,7 @@ export const createCompareNatural = /* #__PURE__ */ factory(name, dependencies, 
       // matrix types
       if (typeX === 'Array' || typeX === 'Matrix' ||
           typeY === 'Array' || typeY === 'Matrix') {
-        c = compareMatricesAndArrays(this, x, y)
+        c = compareMatricesAndArrays(self, x, y)
         if (c !== 0) {
           return c
         } else {
@@ -119,11 +119,11 @@ export const createCompareNatural = /* #__PURE__ */ factory(name, dependencies, 
 
       if (typeX === 'Unit') {
         if (x.equalBase(y)) {
-          return this(x.value, y.value)
+          return self(x.value, y.value)
         }
 
         // compare by units
-        return compareArrays(this, x.formatUnits(), y.formatUnits())
+        return compareArrays(self, x.formatUnits(), y.formatUnits())
       }
 
       if (typeX === 'boolean') {
@@ -135,7 +135,7 @@ export const createCompareNatural = /* #__PURE__ */ factory(name, dependencies, 
       }
 
       if (typeX === 'Object') {
-        return compareObjects(this, x, y)
+        return compareObjects(self, x, y)
       }
 
       if (typeX === 'null') {
@@ -148,7 +148,7 @@ export const createCompareNatural = /* #__PURE__ */ factory(name, dependencies, 
 
       // this should not occur...
       throw new TypeError('Unsupported type of value "' + typeX + '"')
-    }
+    })
   })
 
   /**

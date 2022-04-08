@@ -21,10 +21,7 @@ export const createBitAnd = /* #__PURE__ */ factory(name, dependencies, ({ typed
   const algorithmSs0 = createAlgorithmSs0({ typed, equalScalar })
   const matrixAlgorithmSuite = createMatrixAlgorithmSuite({ typed, matrix })
 
-  const bitAndScalar = typed({
-    'number, number': bitAndNumber,
-    'BigNumber, BigNumber': bitAndBigNumber,
-  })
+  const bitAndScalar = typed('bitAndScalar', bitAndNumber, bitAndBigNumber)
   
   /**
    * Bitwise AND two values, `x & y`.

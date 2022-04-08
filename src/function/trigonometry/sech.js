@@ -38,13 +38,6 @@ export const createSech = /* #__PURE__ */ factory(name, dependencies, ({ typed, 
 
     BigNumber: function (x) {
       return new BigNumber(1).div(x.cosh())
-    },
-
-    Unit: function (x) {
-      if (!x.hasBase(x.constructor.BASE_UNITS.ANGLE)) {
-        throw new TypeError('Unit in function sech is no angle')
-      }
-      return this(x.value)
     }
   })
 })

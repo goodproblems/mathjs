@@ -1,6 +1,7 @@
 import { factory } from '../../../utils/factory.js'
-import { createAlgorithmDD } from '../../type/matrix/utils/algorithmDD.js'
-import { createAlgorithmDs } from '../../type/matrix/utils/algorithmDs.js'
+import { extend } from '../../../utils/object.js'
+import { createAlgorithmDD } from './algorithmDD.js'
+import { createAlgorithmDs } from './algorithmDs.js'
 
 const name = 'matrixAlgorithmSuite'
 const dependencies = ['typed', 'matrix']
@@ -47,18 +48,19 @@ export const createMatrixAlgorithmSuite = /* #__PURE__ */ factory(
       // Now add the scalars; can't be above because signatures are computed
       if (options.Ss) {
         const scalar = options.scalar || 'any'
+        const sS = options.sS || options.Ss
         matrixSignatures['DenseMatrix,' + scalar] =
           (x, y) => algorithmDs(x, y, elop, false)
         matrixSignatures[scalar + ', DenseMatrix'] =
           (x, y) => algorithmDs(y, x, elop, true)
         matrixSignatures['Array,' + scalar] =
           (x, y) => algorithmDs(matrix(x), y, elop, false).valueOf()
-        matrixSignatures[scalar + ', Array,'] =
+        matrixSignatures[scalar + ', Array'] =
           (x, y) => algorithmDs(matrix(y), x, elop, true).valueOf()
         matrixSignatures['SparseMatrix,' + scalar] =
           (x, y) => options.Ss(x, y, elop, false)
         matrixSignatures[scalar + ', SparseMatrix'] =
-          (x, y) => options.Ss(y, x, elop, true)
+          (x, y) => sS(y, x, elop, true)
       }
       // Also pull in the scalar signatures if the operator is a typed function
       if (typed.isTypedFunction(elop)) {
