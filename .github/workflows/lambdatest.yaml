@@ -1,0 +1,25 @@
+name: Browser testing on LambdaTest
+
+on:
+  push:
+    branches:
+      - '*'
+    tags:
+
+jobs:
+  test-tunnel:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Start Tunnel
+      - uses: LambdaTest/LambdaTest-tunnel-action@v1
+      - id: tunnel
+      - with:
+          user: ${{ secrets.LT_USERNAME }}
+          accessKey: ${{ secrets.LT_ACCESS_KEY }}
+          tunnelName: "testTunnel"
+        - run: npm run test:src
+        - name: Export Tunnel Logs for debugging
+          uses: actions/upload-artifact@v2
+          with:
+            name: tunnel_logs
+            path: ${{ steps.tunnel.outputs.logFileName }}
