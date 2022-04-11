@@ -13,7 +13,7 @@ jobs:
       - name: Start Tunnel
       - uses: LambdaTest/LambdaTest-tunnel-action@v1
       - id: tunnel
-      - with:
+        with:
           user: ${{ secrets.LT_USERNAME }}
           accessKey: ${{ secrets.LT_ACCESS_KEY }}
           tunnelName: "testTunnel"
