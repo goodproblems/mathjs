@@ -9,10 +9,9 @@ on:
 jobs:
   test-tunnel:
     runs-on: ubuntu-latest
+
     steps:
-      - name: Start Tunnel
       - uses: LambdaTest/LambdaTest-tunnel-action@v1
-      - id: tunnel
         with:
           user: ${{ secrets.LT_USERNAME }}
           accessKey: ${{ secrets.LT_ACCESS_KEY }}
