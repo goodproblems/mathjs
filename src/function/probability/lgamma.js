@@ -36,6 +36,33 @@ export const createLgamma = /* #__PURE__ */ factory(name, dependencies, ({ Compl
     -5.952380952380952381e-4, 7.9365079365079365079e-4, -2.7777777777777777778e-3, 8.3333333333333333333e-2
   ]
 
+  function lgammaComplex (n) {
+    const TWOPI = 6.2831853071795864769252842 // 2*pi
+    const LOGPI = 1.1447298858494001741434262 // log(pi)
+
+    const REFLECTION = 0.1
+
+    if (n.isNaN()) {
+      return new Complex(NaN, NaN)
+    } else if (n.im === 0) {
+      return new Complex(lgammaNumber(n.re), 0)
+    } else if (n.re >= SMALL_RE || Math.abs(n.im) >= SMALL_IM) {
+      return lgammaStirling(n)
+    } else if (n.re <= REFLECTION) {
+      // Reflection formula. see Proposition 3.1 in [1]
+      const tmp = copysign(TWOPI, n.im) * Math.floor(0.5 * n.re + 0.25)
+      // TODO: `complex.js sin` doesn't have extremely high precision, so this value `a` may lose a little precision,
+      // causing the computation results to be less accurate than the lgamma of real numbers
+      const a = n.mul(Math.PI).sin().log()
+      const b = lgammaComplex(new Complex(1 - n.re, -n.im))
+      return new Complex(LOGPI, tmp).sub(a).sub(b)
+    } else if (n.im >= 0) {
+      return lgammaRecurrence(n)
+    } else {
+      return lgammaRecurrence(n.conjugate()).conjugate()
+    }
+  }
+
   /**
    * Logarithm of the gamma function for real, positive numbers and complex numbers,
    * using Lanczos approximation for numbers and Stirling series for complex numbers.
@@ -61,34 +88,7 @@ export const createLgamma = /* #__PURE__ */ factory(name, dependencies, ({ Compl
 
   return typed(name, {
     number: lgammaNumber,
-
-    Complex: function (n) {
-      const TWOPI = 6.2831853071795864769252842 // 2*pi
-      const LOGPI = 1.1447298858494001741434262 // log(pi)
-
-      const REFLECTION = 0.1
-
-      if (n.isNaN()) {
-        return new Complex(NaN, NaN)
-      } else if (n.im === 0) {
-        return new Complex(lgammaNumber(n.re), 0)
-      } else if (n.re >= SMALL_RE || Math.abs(n.im) >= SMALL_IM) {
-        return lgammaStirling(n)
-      } else if (n.re <= REFLECTION) {
-        // Reflection formula. see Proposition 3.1 in [1]
-        const tmp = copysign(TWOPI, n.im) * Math.floor(0.5 * n.re + 0.25)
-        // TODO: `complex.js sin` doesn't have extremely high precision, so this value `a` may lose a little precision,
-        // causing the computation results to be less accurate than the lgamma of real numbers
-        const a = n.mul(Math.PI).sin().log()
-        const b = this(new Complex(1 - n.re, -n.im))
-        return new Complex(LOGPI, tmp).sub(a).sub(b)
-      } else if (n.im >= 0) {
-        return lgammaRecurrence(n)
-      } else {
-        return lgammaRecurrence(n.conjugate()).conjugate()
-      }
-    },
-
+    Complex: lgammaComplex,
     BigNumber: function () {
       throw new Error("mathjs doesn't yet provide an implementation of the algorithm lgamma for BigNumber")
     }
