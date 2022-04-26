@@ -443,7 +443,7 @@ declare namespace math {
      * operation.
      * @returns The created chain
      */
-    chain(value?: any): MathJsChain;
+    chain<TValue>(value?: TValue): MathJsChain<TValue>;
 
     /**
      * Create a complex value or convert a value to a complex value.
@@ -2779,7 +2779,7 @@ declare namespace math {
 
      isSymbolNode(x: unknown): x is SymbolNode;
 
-     isChain(x: unknown): x is MathJsChain;
+     isChain(x: unknown): x is MathJsChain<any>;
 
     /*************************************************************************
      * Functions -> Utils
@@ -3620,8 +3620,8 @@ declare namespace math {
     randomSeed?: string | null;
   }
 
-  interface MathJsChain {
-    done(): any;
+  interface MathJsChain<TValue> {
+    done(): TValue;
 
     /*************************************************************************
      * Construction functions
@@ -3632,7 +3632,7 @@ declare namespace math {
      * When a matrix is provided, all elements will be converted to
      * BigNumber.
      */
-    bignumber(): MathJsChain;
+    bignumber(this: MathJsChain<number | string | Fraction | BigNumber | boolean | Fraction | null>): MathJsChain<BigNumber>;
 
     /**
      * Create a boolean or convert a string or number to a boolean. In case
@@ -3640,14 +3640,14 @@ declare namespace math {
      * of zero. Strings can be 'true' or 'false', or can contain a number.
      * When value is a matrix, all elements will be converted to boolean.
      */
-    boolean(): MathJsChain;
+    boolean(this: MathJsChain<string | number | boolean | MathCollection | null>): MathJsChain<boolean>;
 
     /**
      * Create a complex value or convert a value to a complex value.
      * @param im Argument specifying the imaginary part of the complex
      * number
      */
-    complex(im?: number): MathJsChain;
+    complex(this: MathJsChain<Complex | string | PolarCoordinates | MathCollection>, im?: number): MathJsChain<Complex>;
 
     /**
      * Create a user-defined unit and register it with the Unit type.
@@ -3702,7 +3702,7 @@ declare namespace math {
      * @param valuelessUnit A valueless unit, used to convert a unit to a
      * number
      */
-    number(valuelessUnit?: Unit | string): MathJsChain;
+    number(this: MathJsChain<string | number | BigNumber | Fraction | boolean | MathCollection | Unit | null>, valuelessUnit?: Unit | string): MathJsChain<number>;
 
     /**
      * Create a Sparse Matrix. The function creates a new math.type.Matrix
@@ -3724,7 +3724,7 @@ declare namespace math {
      * Create a string or convert any object into a string. Elements of
      * Arrays and Matrices are processed element wise.
      */
-    string(): MathJsChain;
+    string(this: MathJsChain<MathType | null>): MathJsChain<string>;
 
     /**
      * Create a unit. Depending on the passed arguments, the function will
@@ -3761,11 +3761,8 @@ declare namespace math {
      * invoking node.evaluate();
      * @param options Available options: nodes - a set of custome nodes
      */
-    parse(options?: any): MathJsChain;
-    /**
-     * @param options Available options: nodes - a set of custome nodes
-     */
-    parse(options?: any): MathJsChain;
+    parse(this: MathJsChain<MathExpression>, options?: any): MathJsChain<MathNode>;
+    parse(this: MathJsChain<MathExpression[]>, options?: any): MathJsChain<MathNode[]>;
 
     /**
      * Create a parser. The function creates a new math.expression.Parser

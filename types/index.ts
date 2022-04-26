@@ -7,6 +7,9 @@ import {
   addDependencies,
   divideDependencies,
   formatDependencies,
+  BigNumber,
+  Complex,
+  MathJsChain,
 } from 'mathjs';
 import * as assert from 'assert';
 import { expectTypeOf } from 'expect-type'
@@ -129,6 +132,44 @@ Chaining examples
 
   const r = math.chain(-0.483).round([0,1,2]).floor().add(0.52).fix(1).done();
   assert.deepStrictEqual(r, [0.5, -0.4, -0.4]);
+
+  /* --------------------------------------- */
+  
+  // TODO figure out where these type of tests should go
+
+  // Number
+  expectTypeOf(math.chain(12)).toMatchTypeOf<MathJsChain<number>>()
+  expectTypeOf(math.chain(12).number()).toMatchTypeOf<MathJsChain<number>>()
+  expectTypeOf(math.chain(12).number().done()).toMatchTypeOf<number>()
+
+  // Big number
+  expectTypeOf(math.chain(math.bignumber(1234))).toMatchTypeOf<MathJsChain<BigNumber>>()
+  expectTypeOf(math.chain(12).bignumber()).toMatchTypeOf<MathJsChain<BigNumber>>()
+  expectTypeOf(math.chain(12).bignumber().done()).toMatchTypeOf<BigNumber>()
+
+  // Boolean
+  expectTypeOf(math.chain(false)).toMatchTypeOf<MathJsChain<boolean>>()
+  expectTypeOf(math.chain(12).boolean()).toMatchTypeOf<MathJsChain<boolean>>()
+  expectTypeOf(math.chain(12).boolean().done()).toMatchTypeOf<boolean>()
+
+  // Complex
+  expectTypeOf(math.chain(math.complex())).toMatchTypeOf<MathJsChain<Complex>>()
+  expectTypeOf(math.chain('1').complex()).toMatchTypeOf<MathJsChain<Complex>>()
+
+  // String
+  expectTypeOf(math.chain('1')).toMatchTypeOf<MathJsChain<string>>()
+  expectTypeOf(math.chain(1).string()).toMatchTypeOf<MathJsChain<string>>()
+  expectTypeOf(math.chain(1).string().done()).toMatchTypeOf<string>()
+
+  math.chain('x = y').parse().done().toTex()
+  math.chain('x = y').parse().bignumber()
+
+  math.chain(12).boolean().bignumber().done().toTex()
+  math.chain(12).boolean().bignumber().done().toString()
+
+  math.chain(12).bignumber().complex()
+
+  math.chain(math.complex()).bignumber()
 }
 
 /*
